@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Explore Learning – Digital Marketing LMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f5f6fa;--card:#fff;--tx:#1d2233;--mu:#6b7285;--pr:#2f5bea;--bd:#e0e3ec;--ok:#1a8f4c;--er:#d33}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1e2a;--tx:#e8eaf2;--mu:#98a0b5;--bd:#2c3040;--pr:#6c8cff}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1e2a;--tx:#e8eaf2;--mu:#98a0b5;--bd:#2c3040;--pr:#6c8cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd);gap:8px;flex-wrap:wrap}
+header b{font-size:17px}main{max-width:1050px;margin:auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+button{background:var(--pr);color:#fff;border:0;border-radius:7px;padding:8px 14px;cursor:pointer;font:inherit}
+button.g{background:transparent;color:var(--pr);border:1px solid var(--bd)}button.d{background:var(--er)}button:disabled{opacity:.5}
+input,textarea,select{width:100%;padding:8px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--tx);font:inherit;margin:4px 0}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}.tabs button{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.tabs button.on{background:var(--pr);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1 1 140px}.row>button{flex:0 0 auto}
+.grid{display:grid;grid-template-columns:280px 1fr;gap:14px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.item{padding:8px;border:1px solid var(--bd);border-radius:7px;margin-bottom:6px;cursor:pointer}.item.on{border-color:var(--pr);background:color-mix(in srgb,var(--pr) 10%,transparent)}
+iframe{width:100%;height:60vh;min-height:320px;border:0;border-radius:8px;background:#000}
+.mu{color:var(--mu);font-size:13px}.tag{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--bd);font-size:12px}
+.opt{display:block;padding:9px;border:1px solid var(--bd);border-radius:7px;margin:6px 0;cursor:pointer}.opt input{width:auto;margin-right:8px}
+.ok{color:var(--ok)}.er{color:var(--er)}.login{max-width:360px;margin:12vh auto}table{width:100%;border-collapse:collapse}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
+</style></head><body><div id="app"></div>
+<script>
+window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
+let firebaseConfig=null;try{firebaseConfig=JSON.parse(localStorage.getItem('lms_fb')||'null')}catch(e){}
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+let db,auth,S={user:null,mats:[],exams:[],subs:[],users:[],tab:'ebooks',mat:null,draft:null,taking:null,open:null,msg:''},subbed=false;S.mode='login';
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+async function init(){
+ S.keys={};S.sent=[];S.results=[];
+ if(typeof firebase==='undefined'||!firebase.auth){$('#app').innerHTML='<div class="card login" style="color:#d33">Firebase library failed to load. Check your internet connection and refresh.</div>';return}
+ if(firebaseConfig){try{await connect(firebaseConfig);const u=await new Promise(r=>{const un=auth.onAuthStateChanged(x=>{un();r(x)})});if(u)await loadProfile(u.uid)}catch(e){console.error(e)}}
+ render()}
+async function connect(c){await Promise.all(firebase.apps.map(a=>a.delete()));firebase.initializeApp(c);db=firebase.firestore();auth=firebase.auth()}
+async function loadProfile(uid){const d=await db.doc('users/'+uid).get();if(!d.exists){await auth.signOut();return}const x=d.data();enter({id:uid,role:x.role,name:x.name,username:x.username})}
+const DOM='@users.explorelms.app';
+const AERR={'auth/email-already-in-use':'Username already taken','auth/invalid-credential':'Invalid username or password','auth/wrong-password':'Invalid username or password','auth/user-not-found':'Invalid username or password','auth/invalid-login-credentials':'Invalid username or password','auth/weak-password':'Password must be at least 6 characters','auth/operation-not-allowed':'Enable Email/Password sign-in in Firebase → Authentication → Sign-in method','auth/too-many-requests':'Too many attempts. Try again later.'};
+const aerr=e=>AERR[e.code]||('Failed: '+(e.code||'')+' '+(e.message||e));
+async function saveCfg(){const c={};CK.forEach(k=>c[k]=$('#c_'+k).value.trim());
+ if(!c.apiKey||!c.projectId||!c.appId)return $('#cm').textContent='apiKey, projectId and appId are required';
+ if(!c.authDomain)c.authDomain=c.projectId+'.firebaseapp.com';$('#cm').textContent='Connecting…';
+ try{await connect(c);try{await auth.signInWithEmailAndPassword('check'+DOM,'check-password')}catch(e){if(/configuration-not-found|operation-not-allowed|invalid-api-key|api-key-not-valid|network/.test(e.code||''))throw e}
+  try{localStorage.setItem('lms_fb',JSON.stringify(c))}catch(e){}firebaseConfig=c;S.msg='';render()}
+ catch(e){db=null;S.msg='Could not connect: '+(e.code||'')+' '+(e.message||e)+' — check the values and that Authentication → Email/Password is enabled.';render()}}
+async function signup(){const n=($('#n').value||'').trim(),u=$('#u').value.trim().toLowerCase().replace(/[^a-z0-9_.-]/g,''),p=$('#p').value;
+ if(!n||u.length<3||p.length<6)return amsg('Enter your name, a username (3+ chars) and a password (6+ chars)');if(p!==$('#p2').value)return amsg('Passwords do not match');
+ try{const uid=(await auth.createUserWithEmailAndPassword(u+DOM,p)).user.uid;let role='student';const prof={username:u,name:n};
+  if(!(await db.doc('config/setup').get()).exists){const b=db.batch();b.set(db.doc('config/setup'),{owner:uid});b.set(db.doc('users/'+uid),{...prof,role:'teacher'});try{await b.commit();role='teacher'}catch(e){}}
+  if(role=='student')await db.doc('users/'+uid).set({...prof,role});
+  enter({id:uid,role,name:n,username:u})}catch(e){amsg(aerr(e))}}
+async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').value;
+ try{const uid=(await auth.signInWithEmailAndPassword((u||'x')+DOM,p)).user.uid;await loadProfile(uid);if(!S.user)amsg('Profile not found')}catch(e){amsg(aerr(e))}}
+function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render()}
+let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
+function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
+ c('materials','mats');c('exams','exams');
+ if(T){c('submissions','subs');c('users','users');c('examKeys','keysL')}else{c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
+function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.sent=[];S.results=[];auth.signOut();render()}
+function stuView(){return`<div class="card"><b>Students</b><p class="mu">Students create their own accounts using “Sign up” on the login page.</p><table><tr><th>Name</th><th>Username</th><th></th></tr>${S.users.filter(u=>u.role=='student').map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td><a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove profile</a></td></tr>`).join('')}</table></div>`}
+async function delDoc(c,id){if(!confirm('Delete this?'))return;await db.doc(c+'/'+id).delete();if(c=='exams')await db.doc('examKeys/'+id).delete()}
+async function saveExam(){const d=S.draft,ref=db.collection('exams').doc(),b=db.batch();
+ b.set(ref,{title:$('#et').value.trim()||d.title,qs:d.qs.map(({ai,...q})=>q),ts:Date.now(),published:false});b.set(db.doc('examKeys/'+ref.id),{ai:d.qs.map(q=>q.ai)});await b.commit();S.draft=null;render()}
+async function pubMarks(id,v){const ss=S.subs.filter(s=>s.examId==id),ck=ss.filter(s=>s.checked);if(v&&ck.length<ss.length&&!confirm((ss.length-ck.length)+' submission(s) are not checked yet and will get no result. Publish anyway?'))return;
+ const b=db.batch();ck.forEach(s=>{const r=db.doc('results/'+s.id);v?b.set(r,{examId:id,uid:s.uid,marks:s.marks,total:s.total,max:s.max}):b.delete(r)});b.update(db.doc('exams/'+id),{published:v});await b.commit()}
+function markView(){const e=S.exams.find(x=>x.id==S.open.e),k=(S.keys[e.id]||{}).ai||[],ss=S.subs.filter(s=>s.examId==e.id),cur=S.open.s&&ss.find(s=>s.id==S.open.s);
+ if(!cur)return`<button class="g" onclick="S.open=null;render()">← Back</button><div class="card"><b>${esc(e.title)} – submissions</b>${ss.map(s=>`<div class="item" onclick="S.open.s='${s.id}';render()">${esc(s.name)} <span class="tag">${s.checked?'checked · '+s.total+'/'+s.max:'to check'}</span></div>`).join('')||'<p class="mu">No submissions yet.</p>'}</div>`;
+ return`<button class="g" onclick="delete S.open.s;render()">← Back</button><div class="card"><b>${esc(cur.name)} – ${esc(e.title)}</b>
+ ${e.qs.map((q,i)=>{const a=cur.answers[i],m=q.type=='mcq';return`<hr><p><b>${i+1}.</b> ${esc(q.q)} <span class="tag">max ${q.marks}</span></p>
+ <p>Answer: ${m?`${a>=0?esc('ABCDE'[a]+') '+q.opts[a]):'<i>not answered</i>'}<br><span class="mu">Correct: ${k[i]>=0?esc('ABCDE'[k[i]]+') '+q.opts[k[i]]):'n/a'}</span>`:`<span style="white-space:pre-wrap">${esc(a)||'<i>not answered</i>'}</span>`}</p>
+ <label>Marks <input class="mk" type="number" min="0" max="${q.marks}" step="0.5" style="width:90px" value="${cur.marks?.[i]??(m&&a>=0?(a===k[i]?q.marks:0):'')}"> / ${q.marks}</label>`}).join('')}
+ <p><button onclick="saveMarks('${cur.id}')">Save marks</button> <span id="mm" class="ok"></span></p></div>`}
+async function saveMarks(id){const s=S.subs.find(x=>x.id==id),e=S.exams.find(x=>x.id==s.examId),ins=[...document.querySelectorAll('.mk')];
+ const marks=ins.map((x,i)=>Math.min(e.qs[i].marks,Math.max(0,parseFloat(x.value)||0))),d={marks,total:marks.reduce((a,b)=>a+b,0),max:e.qs.reduce((a,q)=>a+q.marks,0),checked:true},b=db.batch();
+ b.update(db.doc('submissions/'+id),d);if(e.published)b.set(db.doc('results/'+id),{examId:e.id,uid:s.uid,...d});await b.commit();$('#mm').textContent='Saved ✓'}
+function sExams(){const my=S.results;
+ if(S.open){const s=my.find(x=>x.id==S.open),e=S.exams.find(x=>x.id==s.examId);
+  return`<button class="g" onclick="S.open=null;render()">← Back</button><div class="card"><b>${esc(e.title)} – Mark list</b><table><tr><th>#</th><th>Question</th><th>Marks</th></tr>${e.qs.map((q,i)=>`<tr><td>${i+1}</td><td>${esc(q.q)}</td><td>${s.marks?.[i]??0} / ${q.marks}</td></tr>`).join('')}<tr><th></th><th>Total</th><th>${s.total} / ${s.max}</th></tr></table></div>`}
+ return S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const r=my.find(x=>x.examId==e.id),sent=S.sent.some(x=>x.examId==e.id);
+  return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((t,q)=>t+q.marks,0)} marks</span><p>${r?`<button onclick="S.open='${r.id}';render()">View marks</button>`:sent?'<span class="tag">Submitted – awaiting results</span>':`<button onclick="startExam('${e.id}')">Start exam</button>`}</p></div>`}).join('')||'<p class="mu">No exams available yet.</p>'}
+async function submitExam(){const{e,ans}=S.taking,un=ans.filter(a=>a===-1||a==='').length;
+ if(!confirm((un?un+' question(s) unanswered. ':'')+'Submit now? You cannot change or view your answers afterwards.'))return;
+ const id=e.id+'_'+S.user.id,b=db.batch();b.set(db.doc('submissions/'+id),{examId:e.id,uid:S.user.id,name:S.user.name,answers:ans,marks:null,checked:false,ts:Date.now()});b.set(db.doc('sent/'+id),{examId:e.id,uid:S.user.id});
+ try{await b.commit();S.taking=null;S.tab='exams';render()}catch(err){alert('Could not submit: '+(err.message||err.code)+'. Your answers are still on screen – try again.')}}
+
+const _h=async p=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('lms::'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return p}};
+const CK=['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'];
+function cfgView(){return`<div class="card login" style="max-width:520px;margin-top:6vh"><h2>Firebase setup</h2><p class="mu">One-time setup. Saved permanently in this browser.</p>
+<textarea id="cs" rows="4" placeholder="Optional: paste the whole firebaseConfig snippet here to auto-fill the boxes" oninput="fillCfg(this.value)"></textarea>
+${CK.map(k=>`<input id="c_${k}" placeholder="${k}${/apiKey|projectId|appId/.test(k)?' (required)':' (optional)'}">`).join('')}
+<p class="er" id="cm">${esc(S.msg)}</p><button style="width:100%" onclick="saveCfg()">Save &amp; connect</button></div>`}
+function fillCfg(t){CK.forEach(k=>{const m=t.match(new RegExp(k+'\\s*:\\s*["\']([^"\']+)["\']'));if(m)$('#c_'+k).value=m[1]})}
+function resetCfg(){if(!confirm('Remove the saved Firebase configuration from this browser?'))return;try{localStorage.removeItem('lms_fb')}catch(e){}db=null;firebaseConfig=null;subbed=false;S.user=null;S.msg='';render()}
+function setMode(m){S.mode=m;S.msg='';render()}
+const amsg=m=>$('#am').textContent=m;
+function authView(){const su=S.mode=='signup';return`<div class="card login"><h2>Explore Learning</h2><p class="mu">Digital Marketing Course · LMS</p>
+${su?'<input id="n" placeholder="Full name">':''}<input id="u" placeholder="Username" autocapitalize="none"><input id="p" type="password" placeholder="Password" onkeydown="event.key=='Enter'&&authGo()">${su?'<input id="p2" type="password" placeholder="Confirm password"><p class="mu">The very first account created becomes the teacher; all others are students. Password: 6+ characters.</p>':''}
+<p class="er" id="am">${esc(S.msg)}</p><button style="width:100%" onclick="authGo()">${su?'Create account':'Login'}</button>
+<p class="mu" style="text-align:center">${su?'Have an account? <a href="#" onclick="setMode(\'login\');return false">Login</a>':'New here? <a href="#" onclick="setMode(\'signup\');return false">Sign up</a>'} · <a href="#" onclick="resetCfg();return false">Firebase config</a></p></div>`}
+const authGo=()=>S.mode=='signup'?signup():login();
+function render(){const a=$('#app');
+ if(!db){a.innerHTML=cfgView();return}
+ if(!S.user){a.innerHTML=authView();return}
+ const T=S.user.role=='teacher',tabs=T?[['exams','Exams'],['ebooks','E-books'],['videos','Videos'],['students','Students']]:[['ebooks','E-books'],['videos','Videos'],['exams','Exams & Results']];
+ a.innerHTML=`<header><b>📣 Explore Learning – Digital Marketing</b><span>${esc(S.user.name)} <span class="tag">${S.user.role}</span> <button class="g" onclick="logout()">Logout</button></span></header><main>
+ ${S.taking?'':`<div class="tabs">${tabs.map(([k,l])=>`<button class="${S.tab==k?'on':''}" onclick="S.tab='${k}';S.open=null;S.mat=null;render()">${l}</button>`).join('')}</div>`}
+ ${S.taking?takeView():S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():T?(S.open?markView():tExams()):sExams()}</main>`}
+/* ---------- materials ---------- */
+function emb(u){let m;if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return'https://drive.google.com/file/d/'+m[1]+'/preview';if(m=u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/))return'https://www.youtube.com/embed/'+m[1];
+ if(/facebook\.com|fb\.watch/.test(u))return'https://www.facebook.com/plugins/video.php?show_text=false&href='+encodeURIComponent(u);
+ if(m=u.match(/instagram\.com\/(p|reel|tv)\/([\w-]+)/))return'https://www.instagram.com/'+m[1]+'/'+m[2]+'/embed';return u}
+function matView(T){const k=S.tab=='ebooks'?'ebook':'video',L=S.mats.filter(m=>m.type==k).sort((a,b)=>b.ts-a.ts),cur=L.find(m=>m.id==S.mat)||L[0];
+ return`${T?`<div class="card"><b>Add ${k=='ebook'?'e-book':'video'}</b><div class="row"><input id="mt" placeholder="Title"><input id="mu" placeholder="${k=='ebook'?'PDF link (Google Drive share link or any PDF URL)':'YouTube / Facebook / Instagram URL'}"></div>
+ <button onclick="addMat('${k}')">Add</button> <span class="mu" id="mst"></span></div>`:''}
+ <div class="grid"><div>${L.map(m=>`<div class="item ${cur&&cur.id==m.id?'on':''}" onclick="S.mat='${m.id}';render()">${k=='ebook'?'📘':'🎬'} ${esc(m.title)}${T?` <a href="#" class="er" onclick="event.stopPropagation();delDoc('materials','${m.id}');return false">✕</a>`:''}</div>`).join('')||'<p class="mu">Nothing uploaded yet.</p>'}</div>
+ <div class="card">${cur?`<b>${esc(cur.title)}</b><br><iframe src="${esc(emb(cur.url))}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture"></iframe><p><a href="${esc(cur.url)}" target="_blank" rel="noopener">Open in new tab</a></p>`:'<p class="mu">Select an item to view it here.</p>'}</div></div>`}
+async function addMat(type){let t=$('#mt').value.trim(),u=$('#mu').value.trim(),st=$('#mst');
+ try{if(!t||!u)return st.textContent='Enter a title and a link/file';
+  await db.collection('materials').add({type,title:t,url:u,ts:Date.now()})}catch(e){st.textContent='Error: '+(e.message||e.code)}}
+/* ---------- students ---------- */
+/* ---------- exam parsing ---------- */
+function parseText(t){const qs=[];let c=null,m;t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
+ if(m=l.match(/^(?:Q\.?\s*)?(\d+)[.)]\s*(.+)/i)){c={q:m[2],opts:[],ans:'',marks:1};qs.push(c)}
+ else if(c&&(m=l.match(/^\(?([A-D])[.)]\s*(.+)/i)))c.opts.push(m[2]);
+ else if(c&&(m=l.match(/^(?:ans(?:wer)?|correct)\s*[:\-]\s*(.+)/i)))c.ans=m[1].trim();
+ else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l});
+ return qs.map(q=>{let m=q.q.match(/[\[(]\s*(\d+)\s*marks?\s*[\])]/i);if(m){q.marks=+m[1];q.q=q.q.replace(m[0],'').trim()}
+  const mc=q.opts.length>1;return{q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc?'ABCD'.indexOf(q.ans.charAt(0).toUpperCase()):-1,marks:q.marks}})}
+async function readFile(f){const n=f.name.toLowerCase(),buf=await f.arrayBuffer();
+ if(/\.xlsx?$/.test(n)||n.endsWith('.csv')){const wb=XLSX.read(buf),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+  return rows.map(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();
+   const opts=['a','b','c','d','e'].map(x=>g['option '+x]||g[x]||g['option'+x]||'').filter(Boolean),q=g.question||g.q||'';
+   const mc=opts.length>1&&!/para/i.test(g.type||''),an=(g.answer||g.correct||'').toUpperCase();
+   let ai=mc?'ABCDE'.indexOf(an.charAt(0)):-1;if(mc&&ai>=0&&an.length>1){const j=opts.findIndex(o=>o.toUpperCase()==an);if(j>=0)ai=j}
+   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1}}).filter(q=>q.q)}
+ if(n.endsWith('.docx'))return parseText((await mammoth.extractRawText({arrayBuffer:buf})).value);
+ if(n.endsWith('.pdf')){const pdf=await pdfjsLib.getDocument({data:buf}).promise;let t='';
+  for(let i=1;i<=pdf.numPages;i++){const c=await(await pdf.getPage(i)).getTextContent();let y=null;c.items.forEach(it=>{const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)t+='\n';t+=it.str+' ';y=yy});t+='\n'}
+  return parseText(t)}
+ throw Error('Use .docx, .xlsx or .pdf')}
+async function pickExam(inp){const f=inp.files[0];if(!f)return;const st=$('#est');st.textContent='Reading…';
+ try{const qs=await readFile(f);if(!qs.length)throw Error('No questions found – check the format');S.draft={title:f.name.replace(/\.\w+$/,''),qs};render()}catch(e){st.textContent='Error: '+(e.message||e)}}
+/* ---------- teacher exams ---------- */
+function tExams(){const d=S.draft;
+ return`<div class="card"><b>Upload question paper</b> <span class="mu">(Word / Excel / PDF)</span><input type="file" accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="pickExam(this)"><span class="mu" id="est"></span>
+ <details><summary class="mu">Expected format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>, options <code>A) …</code> to <code>D) …</code>, then <code>Answer: B</code>. Questions without options become paragraph questions.<br>Excel columns: Question, Type, A, B, C, D, Answer, Marks.</p></details></div>
+ ${d?`<div class="card"><b>Preview – ${d.qs.length} questions (${d.qs.reduce((s,q)=>s+q.marks,0)} marks)</b><input id="et" value="${esc(d.title)}" placeholder="Exam title">
+ ${d.qs.map((q,i)=>`<p>${i+1}. ${esc(q.q)} <span class="tag">${q.type=='mcq'?'MCQ':'Paragraph'} · ${q.marks}m</span>${q.opts.map((o,j)=>`<br><span class="${j==q.ai?'ok':'mu'}">${'ABCDE'[j]}) ${esc(o)}</span>`).join('')}</p>`).join('')}
+ <button onclick="saveExam()">Publish exam to students</button> <button class="g" onclick="S.draft=null;render()">Discard</button></div>`:''}
+ ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
+ <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
+ <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delDoc('exams','${e.id}')">Delete</button></div>`}).join('')}`}
+/* ---------- student exams ---------- */
+function startExam(id){const e=S.exams.find(x=>x.id==id);if(!confirm('Start now? Once submitted you cannot view or change your answers.'))return;S.taking={e,i:0,ans:e.qs.map(q=>q.type=='mcq'?-1:'')};render()}
+function takeView(){const{e,i,ans}=S.taking,q=e.qs[i],last=i==e.qs.length-1;
+ return`<div class="card"><p class="mu">${esc(e.title)} · Question ${i+1} of ${e.qs.length} · ${q.marks} mark(s)</p><h3>${esc(q.q)}</h3>
+ ${q.type=='mcq'?q.opts.map((o,j)=>`<label class="opt"><input type="radio" name="o" ${ans[i]===j?'checked':''} onchange="S.taking.ans[${i}]=${j}">${'ABCDE'[j]}) ${esc(o)}</label>`).join(''):`<textarea rows="9" placeholder="Type your answer here…" oninput="S.taking.ans[${i}]=this.value">${esc(ans[i])}</textarea>`}
+ <div class="row" style="margin-top:12px"><button class="g" ${i?'':'disabled'} onclick="go(-1)">← Previous</button>${last?'<button onclick="submitExam()">Submit exam</button>':'<button onclick="go(1)">Next →</button>'}</div>
+ <p class="mu">${ans.filter(a=>a!==-1&&a!=='').length} of ${e.qs.length} answered</p></div>`}
+function go(d){S.taking.i+=d;render()}
+init();
+</script></body></html>
