@@ -50,24 +50,47 @@ async function saveCfg(){const c={};CK.forEach(k=>c[k]=$('#c_'+k).value.trim());
  try{await connect(c);try{await auth.signInWithEmailAndPassword('check'+DOM,'check-password')}catch(e){if(/configuration-not-found|operation-not-allowed|invalid-api-key|api-key-not-valid|network/.test(e.code||''))throw e}
   try{localStorage.setItem('lms_fb',JSON.stringify(c))}catch(e){}firebaseConfig=c;S.msg='';render()}
  catch(e){db=null;S.msg='Could not connect: '+(e.code||'')+' '+(e.message||e)+' — check the values and that Authentication → Email/Password is enabled.';render()}}
-async function signup(){const n=($('#n').value||'').trim(),u=$('#u').value.trim().toLowerCase().replace(/[^a-z0-9_.-]/g,''),p=$('#p').value;
- if(!n||u.length<3||p.length<6)return amsg('Enter your name, a username (3+ chars) and a password (6+ chars)');if(p!==$('#p2').value)return amsg('Passwords do not match');
- try{const uid=(await auth.createUserWithEmailAndPassword(u+DOM,p)).user.uid;let role='student';const prof={username:u,name:n};
-  if(!(await db.doc('config/setup').get()).exists){const b=db.batch();b.set(db.doc('config/setup'),{owner:uid});b.set(db.doc('users/'+uid),{...prof,role:'teacher'});try{await b.commit();role='teacher'}catch(e){}}
-  if(role=='student')await db.doc('users/'+uid).set({...prof,role});
-  enter({id:uid,role,name:n,username:u})}catch(e){amsg(aerr(e))}}
+async function signup(){const n=($('#n').value||'').trim(),u=$('#u').value.trim().toLowerCase().replace(/[^a-z0-9_.@+-]/g,''),p=$('#p').value,role=$('#role').value;
+ if(!n||u.length<3||p.length<6)return amsg('Enter your name, a username or email (3+ chars) and a password (6+ chars)');if(p!==$('#p2').value)return amsg('Passwords do not match');
+ let created=false;
+ try{const uid=(await auth.createUserWithEmailAndPassword(u.includes('@')?u:u+DOM,p)).user.uid;created=true;
+  await db.doc('users/'+uid).set({username:u,name:n,role});enter({id:uid,role,name:n,username:u})}
+ catch(e){if(created){try{await auth.currentUser.delete()}catch(x){}}amsg(aerr(e))}}
+
+
 async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').value;
- try{const uid=(await auth.signInWithEmailAndPassword((u||'x')+DOM,p)).user.uid;await loadProfile(uid);if(!S.user)amsg('Profile not found')}catch(e){amsg(aerr(e))}}
+ try{const uid=(await auth.signInWithEmailAndPassword(u.includes('@')?u:(u||'x')+DOM,p)).user.uid;await loadProfile(uid);if(!S.user)amsg('Profile not found')}catch(e){amsg(aerr(e))}}
 function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render()}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
 function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
  c('materials','mats');c('exams','exams');
  if(T){c('submissions','subs');c('users','users');c('examKeys','keysL')}else{c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
 function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.sent=[];S.results=[];auth.signOut();render()}
-function stuView(){return`<div class="card"><b>Students</b><p class="mu">Students create their own accounts using “Sign up” on the login page.</p><table><tr><th>Name</th><th>Username</th><th></th></tr>${S.users.filter(u=>u.role=='student').map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td><a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove profile</a></td></tr>`).join('')}</table></div>`}
+function stuView(){return`<div class="card"><b>Students</b><p class="mu">Students and teachers create their own accounts using “Sign up”.</p><table><tr><th>Name</th><th>Username</th><th></th></tr>${S.users.filter(u=>u.role=='student').map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td><a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove profile</a></td></tr>`).join('')}</table></div>`}
 async function delDoc(c,id){if(!confirm('Delete this?'))return;await db.doc(c+'/'+id).delete();if(c=='exams')await db.doc('examKeys/'+id).delete()}
-async function saveExam(){const d=S.draft,ref=db.collection('exams').doc(),b=db.batch();
- b.set(ref,{title:$('#et').value.trim()||d.title,qs:d.qs.map(({ai,...q})=>q),ts:Date.now(),published:false});b.set(db.doc('examKeys/'+ref.id),{ai:d.qs.map(q=>q.ai)});await b.commit();S.draft=null;render()}
+async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#est'),name=$('#secn').value.trim()||'Section '+(S.draft.secs.length+1),type=$('#sect').value,mk=parseFloat($('#secm').value);st.textContent='Reading…';
+ try{let qs=await readFile(f),skipped=0;
+  qs=qs.map(q=>type=='para'?{...q,type:'para',opts:[],ai:-1}:q).filter(q=>{if(type=='mcq'&&q.type!='mcq'){skipped++;return false}return true});
+  if(mk>0)qs.forEach(q=>q.marks=mk);
+  if(!qs.length)throw Error(type=='mcq'?'No multiple-choice questions found (each needs options A–D)':'No questions found – check the file format');
+  const nokey=type=='mcq'?qs.filter(q=>q.ai<0).length:0;
+  S.note=(skipped?skipped+' question(s) without options were skipped. ':'')+(nokey?nokey+' question(s) have no answer key – you can mark them manually.':'');
+  S.draft.secs.push({name,type,qs});render()}catch(e){st.textContent='Error: '+(e.message||e)}}
+function tExams(){const d=S.draft;
+ return`<div class="card">${!d?`<b>Exam papers</b><p class="mu">Build an exam from sections, e.g. Section 1 – Multiple choice, Section 2 – Paragraph. Each section is uploaded separately from a Word, Excel or PDF file.</p><button onclick="S.draft={title:'',secs:[]};S.note='';render()">＋ Create new exam</button>`:`<b>New exam</b><input placeholder="Exam title" value="${esc(d.title)}" oninput="S.draft.title=this.value">
+ ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>
+ <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}</p>`).join('')}</details></div>`).join('')}
+ <div class="card" style="background:var(--bg)"><b>Add section ${d.secs.length+1}</b>
+ <div class="row"><input id="secn" placeholder="Section name" value="Section ${d.secs.length+1}"><select id="sect"><option value="mcq">Multiple choice</option><option value="para">Paragraph / descriptive</option></select><input id="secm" type="number" min="0" step="0.5" placeholder="Marks per question (blank = use file)"></div>
+ <input id="secf" type="file" accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="addSection(this)"><span class="mu" id="est">${esc(S.note||'')}</span>
+ <details><summary class="mu">Expected file format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>; for multiple choice add options <code>A) …</code> to <code>D) …</code> and <code>Answer: B</code>.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
+ <button ${d.secs.length?'':'disabled'} onclick="saveExam()">Publish exam to students</button> <button class="g" onclick="S.draft=null;render()">Discard</button>`}</div>
+ ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
+ <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
+ <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delDoc('exams','${e.id}')">Delete</button></div>`}).join('')}`}
+async function saveExam(){const d=S.draft,ref=db.collection('exams').doc(),b=db.batch(),qs=[];d.secs.forEach(s=>s.qs.forEach(q=>qs.push({...q,sec:s.name})));
+ b.set(ref,{title:d.title.trim()||'Untitled exam',qs:qs.map(({ai,...q})=>q),ts:Date.now(),published:false});b.set(db.doc('examKeys/'+ref.id),{ai:qs.map(q=>q.ai)});await b.commit();S.draft=null;render()}
+
 async function pubMarks(id,v){const ss=S.subs.filter(s=>s.examId==id),ck=ss.filter(s=>s.checked);if(v&&ck.length<ss.length&&!confirm((ss.length-ck.length)+' submission(s) are not checked yet and will get no result. Publish anyway?'))return;
  const b=db.batch();ck.forEach(s=>{const r=db.doc('results/'+s.id);v?b.set(r,{examId:id,uid:s.uid,marks:s.marks,total:s.total,max:s.max}):b.delete(r)});b.update(db.doc('exams/'+id),{published:v});await b.commit()}
 function markView(){const e=S.exams.find(x=>x.id==S.open.e),k=(S.keys[e.id]||{}).ai||[],ss=S.subs.filter(s=>s.examId==e.id),cur=S.open.s&&ss.find(s=>s.id==S.open.s);
@@ -101,7 +124,7 @@ function resetCfg(){if(!confirm('Remove the saved Firebase configuration from th
 function setMode(m){S.mode=m;S.msg='';render()}
 const amsg=m=>$('#am').textContent=m;
 function authView(){const su=S.mode=='signup';return`<div class="card login"><h2>Explore Learning</h2><p class="mu">Digital Marketing Course · LMS</p>
-${su?'<input id="n" placeholder="Full name">':''}<input id="u" placeholder="Username" autocapitalize="none"><input id="p" type="password" placeholder="Password" onkeydown="event.key=='Enter'&&authGo()">${su?'<input id="p2" type="password" placeholder="Confirm password"><p class="mu">The very first account created becomes the teacher; all others are students. Password: 6+ characters.</p>':''}
+${su?'<input id="n" placeholder="Full name">':''}<input id="u" placeholder="Username or email" autocapitalize="none"><input id="p" type="password" placeholder="Password" onkeydown="event.key=='Enter'&&authGo()">${su?'<input id="p2" type="password" placeholder="Confirm password"><select id="role"><option value="student">I am a student</option><option value="teacher">I am a teacher</option></select><p class="mu">Password: 6+ characters.</p>':''}
 <p class="er" id="am">${esc(S.msg)}</p><button style="width:100%" onclick="authGo()">${su?'Create account':'Login'}</button>
 <p class="mu" style="text-align:center">${su?'Have an account? <a href="#" onclick="setMode(\'login\');return false">Login</a>':'New here? <a href="#" onclick="setMode(\'signup\');return false">Sign up</a>'} · <a href="#" onclick="resetCfg();return false">Firebase config</a></p></div>`}
 const authGo=()=>S.mode=='signup'?signup():login();
@@ -145,22 +168,11 @@ async function readFile(f){const n=f.name.toLowerCase(),buf=await f.arrayBuffer(
   for(let i=1;i<=pdf.numPages;i++){const c=await(await pdf.getPage(i)).getTextContent();let y=null;c.items.forEach(it=>{const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)t+='\n';t+=it.str+' ';y=yy});t+='\n'}
   return parseText(t)}
  throw Error('Use .docx, .xlsx or .pdf')}
-async function pickExam(inp){const f=inp.files[0];if(!f)return;const st=$('#est');st.textContent='Reading…';
- try{const qs=await readFile(f);if(!qs.length)throw Error('No questions found – check the format');S.draft={title:f.name.replace(/\.\w+$/,''),qs};render()}catch(e){st.textContent='Error: '+(e.message||e)}}
 /* ---------- teacher exams ---------- */
-function tExams(){const d=S.draft;
- return`<div class="card"><b>Upload question paper</b> <span class="mu">(Word / Excel / PDF)</span><input type="file" accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="pickExam(this)"><span class="mu" id="est"></span>
- <details><summary class="mu">Expected format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>, options <code>A) …</code> to <code>D) …</code>, then <code>Answer: B</code>. Questions without options become paragraph questions.<br>Excel columns: Question, Type, A, B, C, D, Answer, Marks.</p></details></div>
- ${d?`<div class="card"><b>Preview – ${d.qs.length} questions (${d.qs.reduce((s,q)=>s+q.marks,0)} marks)</b><input id="et" value="${esc(d.title)}" placeholder="Exam title">
- ${d.qs.map((q,i)=>`<p>${i+1}. ${esc(q.q)} <span class="tag">${q.type=='mcq'?'MCQ':'Paragraph'} · ${q.marks}m</span>${q.opts.map((o,j)=>`<br><span class="${j==q.ai?'ok':'mu'}">${'ABCDE'[j]}) ${esc(o)}</span>`).join('')}</p>`).join('')}
- <button onclick="saveExam()">Publish exam to students</button> <button class="g" onclick="S.draft=null;render()">Discard</button></div>`:''}
- ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
- <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
- <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delDoc('exams','${e.id}')">Delete</button></div>`}).join('')}`}
 /* ---------- student exams ---------- */
 function startExam(id){const e=S.exams.find(x=>x.id==id);if(!confirm('Start now? Once submitted you cannot view or change your answers.'))return;S.taking={e,i:0,ans:e.qs.map(q=>q.type=='mcq'?-1:'')};render()}
 function takeView(){const{e,i,ans}=S.taking,q=e.qs[i],last=i==e.qs.length-1;
- return`<div class="card"><p class="mu">${esc(e.title)} · Question ${i+1} of ${e.qs.length} · ${q.marks} mark(s)</p><h3>${esc(q.q)}</h3>
+ return`<div class="card"><p class="mu">${esc(e.title)}${q.sec?' · <b>'+esc(q.sec)+'</b>':''} · Question ${i+1} of ${e.qs.length} · ${q.marks} mark(s)</p><h3>${esc(q.q)}</h3>
  ${q.type=='mcq'?q.opts.map((o,j)=>`<label class="opt"><input type="radio" name="o" ${ans[i]===j?'checked':''} onchange="S.taking.ans[${i}]=${j}">${'ABCDE'[j]}) ${esc(o)}</label>`).join(''):`<textarea rows="9" placeholder="Type your answer here…" oninput="S.taking.ans[${i}]=this.value">${esc(ans[i])}</textarea>`}
  <div class="row" style="margin-top:12px"><button class="g" ${i?'':'disabled'} onclick="go(-1)">← Previous</button>${last?'<button onclick="submitExam()">Submit exam</button>':'<button onclick="go(1)">Next →</button>'}</div>
  <p class="mu">${ans.filter(a=>a!==-1&&a!=='').length} of ${e.qs.length} answered</p></div>`}
