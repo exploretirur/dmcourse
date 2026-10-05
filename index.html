@@ -68,22 +68,67 @@ function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.
 function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.sent=[];S.results=[];auth.signOut();render()}
 function stuView(){return`<div class="card"><b>Students</b><p class="mu">Students and teachers create their own accounts using “Sign up”.</p><table><tr><th>Name</th><th>Username</th><th></th></tr>${S.users.filter(u=>u.role=='student').map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td><a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove profile</a></td></tr>`).join('')}</table></div>`}
 async function delDoc(c,id){if(!confirm('Delete this?'))return;await db.doc(c+'/'+id).delete();if(c=='exams')await db.doc('examKeys/'+id).delete()}
-async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#est'),name=$('#secn').value.trim()||'Section '+(S.draft.secs.length+1),type=$('#sect').value,mk=parseFloat($('#secm').value);st.textContent='Reading…';
- try{let qs=await readFile(f),skipped=0;
-  qs=qs.map(q=>type=='para'?{...q,type:'para',opts:[],ai:-1}:q).filter(q=>{if(type=='mcq'&&q.type!='mcq'){skipped++;return false}return true});
-  if(mk>0)qs.forEach(q=>q.marks=mk);
-  if(!qs.length)throw Error(type=='mcq'?'No multiple-choice questions found (each needs options A–D)':'No questions found – check the file format');
-  const nokey=type=='mcq'?qs.filter(q=>q.ai<0).length:0;
-  S.note=(skipped?skipped+' question(s) without options were skipped. ':'')+(nokey?nokey+' question(s) have no answer key – you can mark them manually.':'');
-  S.draft.secs.push({name,type,qs});render()}catch(e){st.textContent='Error: '+(e.message||e)}}
+const tc=s=>s===s.toUpperCase()?s.toLowerCase().replace(/(^|[\s–\-(])([a-z])/g,(x,a,b)=>a+b.toUpperCase()):s;
+function parseDocxHtml(html){
+ const doc=new DOMParser().parseFromString(html,'text/html'),out=[];let sec='',dm=null,keyMode=false;const key={};
+ const SEC=/^section\b/i,CNT=/^(\d+)\s*questions?.*?[×x*]\s*(\d+(?:\.\d+)?)\s*marks?/i,KEYH=/^answer\s*keys?\b/i,
+  SKIP=/^(total marks|time\s*:|choose the|answer all|instructions?|note\s*:)/i;
+ function handleP(t){t=t.trim();if(!t)return;
+  if(SEC.test(t)){sec=t;dm=null;keyMode=false;return}
+  let m;if(m=t.match(CNT)){dm=+m[2];return}
+  if(KEYH.test(t)){keyMode=true;return}
+  if(keyMode){for(const k of t.matchAll(/(\d+)\s*[-.):=]?\s*([A-E])\b/gi))key[+k[1]]=k[2];return}
+  if(SKIP.test(t))return}
+ (function walk(node){for(const el of node.children){
+   const tag=el.tagName;
+   if(tag==='P'||tag==='H1'||tag==='H2'||tag==='H3')handleP(el.textContent);
+   else if(tag==='OL'||tag==='UL'){
+    for(const li of el.children){if(li.tagName!=='LI')continue;
+     const nested=li.querySelector('ol,ul'),clone=li.cloneNode(true);const ns=clone.querySelector('ol,ul');if(ns)ns.remove();
+     const qt=clone.textContent.trim();if(!qt)continue;
+     const opts=nested?[...nested.children].filter(c=>c.tagName==='LI').map(c=>c.textContent.trim()):[];
+     out.push({n:out.length+1,q:qt,type:opts.length>1?'mcq':'para',opts,ai:-1,marks:dm||1,sec:tc(sec)})}}
+   else if(tag==='TABLE'){} // not handled
+   else walk(el)}})(doc.body);
+ out.forEach(q=>{if(q.type=='mcq'&&key[q.n])q.ai='ABCDE'.indexOf(key[q.n].toUpperCase())});
+ return out}
+
+function parseText(t){const qs=[];let c=null,m,sec='',dm=null,keyMode=false;const key={};
+ t.split(/\r?\n/).forEach(raw=>{raw=raw.trim();(/^\(?A[.)]\s/i.test(raw)?raw.split(/\s+(?=\(?[B-E][.)]\s)/):[raw]).forEach(l=>{l=l.trim();if(!l)return;
+  if(/^section\b/i.test(l)){sec=l;dm=null;c=null;keyMode=false;return}
+  if(m=l.match(/^(\d+)\s*questions?.*?[×x*]\s*(\d+(?:\.\d+)?)\s*marks?/i)){dm=+m[2];c=null;return}
+  if(/^answer\s*keys?\b/i.test(l)){keyMode=true;c=null;return}
+  if(keyMode){for(const k of l.matchAll(/(\d+)\s*[-.):=]?\s*([A-E])\b/gi))key[+k[1]]=k[2];return}
+  if(/^(total marks|time\s*:|choose the|answer all|instructions?|note\s*:)/i.test(l)){c=null;return}
+  if(m=l.match(/^(?:Q\.?\s*)?(\d+)[.)]\s*(.+)/i)){c={n:+m[1],q:m[2],opts:[],ans:'',marks:null,sec,dm};qs.push(c)}
+  else if(c&&(m=l.match(/^\(?([A-E])[.)]\s*(.+)/i)))c.opts.push(m[2]);
+  else if(c&&(m=l.match(/^(?:ans(?:wer)?|correct)\s*[:\-]\s*(.+)/i)))c.ans=m[1].trim();
+  else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l})});
+ return qs.map(q=>{let m=q.q.match(/[\[(]\s*(\d+(?:\.\d+)?)\s*marks?\s*[\])]/i);if(m){q.marks=+m[1];q.q=q.q.replace(m[0],'').trim()}
+  const a=(q.ans||key[q.n]||'').trim(),mc=q.opts.length>1;
+  return{n:q.n,q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc&&a?'ABCDE'.indexOf(a.charAt(0).toUpperCase()):-1,marks:q.marks??q.dm??1,sec:tc(q.sec)}})}
+async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#est'),nm=$('#secn').value.trim()||'Section '+(S.draft.secs.length+1),type=$('#sect').value,mk=parseFloat($('#secm').value);st.textContent='Reading…';
+ try{let qs=await readFile(f),skipped=0,add=[];
+  if(type=='auto'){const g={};qs.forEach(q=>{const k=q.sec||nm;(g[k]=g[k]||[]).push(q)});Object.entries(g).forEach(([n,a])=>{const t=a.every(q=>q.type=='mcq')?'mcq':'para';add.push({name:n,type:t,qs:a.map(q=>t=='para'?{...q,type:'para',opts:[],ai:-1}:q)})})}
+  else{qs=qs.map(q=>type=='para'?{...q,type:'para',opts:[],ai:-1}:q).filter(q=>{if(type=='mcq'&&q.type!='mcq'){skipped++;return false}return true});if(qs.length)add.push({name:nm,type,qs})}
+  if(mk>0)add.forEach(s=>s.qs.forEach(q=>q.marks=mk));
+  if(!add.length)throw Error(type=='mcq'?'No multiple-choice questions found (each needs options A–D)':'No questions found – check the file format');
+  const nokey=add.reduce((t,s)=>t+(s.type=='mcq'?s.qs.filter(q=>q.ai<0).length:0),0);
+  S.note='Added '+add.length+' section(s). '+(skipped?skipped+' question(s) without options were skipped. ':'')+(nokey?nokey+' multiple-choice question(s) have no answer key – set it below (key box or dropdown).':'');
+  S.draft.secs.push(...add);render()}catch(e){st.textContent='Error: '+(e.message||e)}}
+function applyKey(i,v){const sec=S.draft.secs[i],pairs=[...v.matchAll(/(\d+)\s*[-.):=]?\s*([A-E])\b/gi)];
+ if(pairs.length)pairs.forEach(m=>{const q=sec.qs.find(x=>x.n==+m[1]);if(q&&q.type=='mcq')q.ai='ABCDE'.indexOf(m[2].toUpperCase())});
+ else(v.match(/[A-E]/gi)||[]).forEach((c,k)=>{const q=sec.qs[k];if(q&&q.type=='mcq')q.ai='ABCDE'.indexOf(c.toUpperCase())});
+ S.note='Answer key applied: '+sec.qs.filter(q=>q.ai>=0).length+' of '+sec.qs.length+' questions in “'+sec.name+'” have a key.';render()}
+
 function tExams(){const d=S.draft;
  return`<div class="card">${!d?`<b>Exam papers</b><p class="mu">Build an exam from sections, e.g. Section 1 – Multiple choice, Section 2 – Paragraph. Each section is uploaded separately from a Word, Excel or PDF file.</p><button onclick="S.draft={title:'',secs:[]};S.note='';render()">＋ Create new exam</button>`:`<b>New exam</b><input placeholder="Exam title" value="${esc(d.title)}" oninput="S.draft.title=this.value">
- ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>
- <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}</p>`).join('')}</details></div>`).join('')}
+ ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks${s.type=='mcq'?' · key '+s.qs.filter(q=>q.ai>=0).length+'/'+s.qs.length:''} <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>${s.type=='mcq'?`<br><input placeholder="Answer key: B C A D … or 1-B, 2-C …" onchange="applyKey(${i},this.value)">`:''}
+ <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}${q.type=='mcq'?`<br><label class="mu">Correct: <select style="width:auto" onchange="S.draft.secs[${i}].qs[${j}].ai=+this.value"><option value="-1">not set</option>${q.opts.map((o,k)=>`<option value="${k}" ${k==q.ai?'selected':''}>${'ABCDE'[k]}</option>`).join('')}</select></label>`:''}</p>`).join('')}</details></div>`).join('')}
  <div class="card" style="background:var(--bg)"><b>Add section ${d.secs.length+1}</b>
- <div class="row"><input id="secn" placeholder="Section name" value="Section ${d.secs.length+1}"><select id="sect"><option value="mcq">Multiple choice</option><option value="para">Paragraph / descriptive</option></select><input id="secm" type="number" min="0" step="0.5" placeholder="Marks per question (blank = use file)"></div>
+ <div class="row"><input id="secn" placeholder="Section name" value="Section ${d.secs.length+1}"><select id="sect"><option value="auto">Whole paper – auto-detect sections</option><option value="mcq">Multiple choice</option><option value="para">Paragraph / descriptive</option></select><input id="secm" type="number" min="0" step="0.5" placeholder="Marks per question (blank = use file)"></div>
  <input id="secf" type="file" accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="addSection(this)"><span class="mu" id="est">${esc(S.note||'')}</span>
- <details><summary class="mu">Expected file format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>; for multiple choice add options <code>A) …</code> to <code>D) …</code> and <code>Answer: B</code>.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
+ <details><summary class="mu">Expected file format</summary><p class="mu">Choose “Whole paper” to upload a paper that has several sections – headings like <code>SECTION A – …</code> and lines like <code>30 Questions × 1 Mark</code> are detected automatically. Word/PDF: <code>1. Question text [2 marks]</code>; options <code>A. …</code> to <code>D. …</code>; optional <code>Answer: B</code> line or an <code>Answer Key</code> list at the end.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
  <button ${d.secs.length?'':'disabled'} onclick="saveExam()">Publish exam to students</button> <button class="g" onclick="S.draft=null;render()">Discard</button>`}</div>
  ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
  <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
@@ -149,21 +194,15 @@ async function addMat(type){let t=$('#mt').value.trim(),u=$('#mu').value.trim(),
   await db.collection('materials').add({type,title:t,url:u,ts:Date.now()})}catch(e){st.textContent='Error: '+(e.message||e.code)}}
 /* ---------- students ---------- */
 /* ---------- exam parsing ---------- */
-function parseText(t){const qs=[];let c=null,m;t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
- if(m=l.match(/^(?:Q\.?\s*)?(\d+)[.)]\s*(.+)/i)){c={q:m[2],opts:[],ans:'',marks:1};qs.push(c)}
- else if(c&&(m=l.match(/^\(?([A-D])[.)]\s*(.+)/i)))c.opts.push(m[2]);
- else if(c&&(m=l.match(/^(?:ans(?:wer)?|correct)\s*[:\-]\s*(.+)/i)))c.ans=m[1].trim();
- else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l});
- return qs.map(q=>{let m=q.q.match(/[\[(]\s*(\d+)\s*marks?\s*[\])]/i);if(m){q.marks=+m[1];q.q=q.q.replace(m[0],'').trim()}
-  const mc=q.opts.length>1;return{q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc?'ABCD'.indexOf(q.ans.charAt(0).toUpperCase()):-1,marks:q.marks}})}
 async function readFile(f){const n=f.name.toLowerCase(),buf=await f.arrayBuffer();
  if(/\.xlsx?$/.test(n)||n.endsWith('.csv')){const wb=XLSX.read(buf),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
   return rows.map(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();
    const opts=['a','b','c','d','e'].map(x=>g['option '+x]||g[x]||g['option'+x]||'').filter(Boolean),q=g.question||g.q||'';
    const mc=opts.length>1&&!/para/i.test(g.type||''),an=(g.answer||g.correct||'').toUpperCase();
    let ai=mc?'ABCDE'.indexOf(an.charAt(0)):-1;if(mc&&ai>=0&&an.length>1){const j=opts.findIndex(o=>o.toUpperCase()==an);if(j>=0)ai=j}
-   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1}}).filter(q=>q.q)}
- if(n.endsWith('.docx'))return parseText((await mammoth.extractRawText({arrayBuffer:buf})).value);
+   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1,sec:g.section||'',n:+(g.no||g['q no']||g.number||0)||0}}).filter(q=>q.q)}
+ if(n.endsWith('.docx')){const raw=(await mammoth.convertToHtml({arrayBuffer:buf})).value,byList=parseDocxHtml(raw);if(byList.length)return byList;
+  const h=raw.replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|li|tr|h\d)>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');return parseText(h)}
  if(n.endsWith('.pdf')){const pdf=await pdfjsLib.getDocument({data:buf}).promise;let t='';
   for(let i=1;i<=pdf.numPages;i++){const c=await(await pdf.getPage(i)).getTextContent();let y=null;c.items.forEach(it=>{const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)t+='\n';t+=it.str+' ';y=yy});t+='\n'}
   return parseText(t)}
