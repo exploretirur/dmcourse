@@ -27,12 +27,17 @@ iframe{width:100%;height:60vh;min-height:320px;border:0;border-radius:8px;backgr
 .mu{color:var(--mu);font-size:13px}.tag{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--bd);font-size:12px}
 .opt{display:block;padding:9px;border:1px solid var(--bd);border-radius:7px;margin:6px 0;cursor:pointer}.opt input{width:auto;margin-right:8px}
 .ok{color:var(--ok)}.er{color:var(--er)}.login{max-width:360px;margin:12vh auto}table{width:100%;border-collapse:collapse}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
+.tk{display:inline-flex;width:22px;height:22px;border:2px solid var(--bd);border-radius:5px;align-items:center;justify-content:center;font-weight:700;font-size:15px;line-height:1;color:#fff;flex:none;background:transparent}.tk.on{background:var(--ok);border-color:var(--ok)}.tk.ed{cursor:pointer}.tk.ed:hover{border-color:var(--ok)}
+.bar{height:9px;border-radius:99px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.sr{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--bd)}.sw{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 36px;font-size:14px;color:var(--mu)}
+.det{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px 14px}.det span{display:block;font-size:12px;color:var(--mu)}
 </style></head><body><div id="app"></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
-let firebaseConfig=null;try{firebaseConfig=JSON.parse(localStorage.getItem('lms_fb')||'null')}catch(e){}
+const DEFAULT_CFG={apiKey:"AIzaSyCtnuikXk-GEF7LlJxX66wPhZe33GVGy6k",authDomain:"dmcourse-a5f3a.firebaseapp.com",projectId:"dmcourse-a5f3a",storageBucket:"dmcourse-a5f3a.firebasestorage.app",messagingSenderId:"815510811352",appId:"1:815510811352:web:f188c475216773da735dad",measurementId:"G-SX75V2RMPN"};
+let firebaseConfig=DEFAULT_CFG;try{const c=JSON.parse(localStorage.getItem('lms_fb')||'null');if(c&&c.projectId)firebaseConfig=c}catch(e){}
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-let db,auth,S={user:null,mats:[],exams:[],subs:[],users:[],tab:'ebooks',mat:null,draft:null,taking:null,open:null,msg:''},subbed=false;S.mode='login';
+let db,auth,S={user:null,mats:[],exams:[],subs:[],users:[],tab:'ebooks',syl:[],prog:[],pstu:null,editStu:null,pf:'all',mat:null,draft:null,taking:null,open:null,msg:''},subbed=false;S.mode='login';
 if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 async function init(){
  S.keys={};S.sent=[];S.results=[];
@@ -40,7 +45,7 @@ async function init(){
  if(firebaseConfig){try{await connect(firebaseConfig);const u=await new Promise(r=>{const un=auth.onAuthStateChanged(x=>{un();r(x)})});if(u)await loadProfile(u.uid)}catch(e){console.error(e)}}
  render()}
 async function connect(c){await Promise.all(firebase.apps.map(a=>a.delete()));firebase.initializeApp(c);db=firebase.firestore();auth=firebase.auth()}
-async function loadProfile(uid){const d=await db.doc('users/'+uid).get();if(!d.exists){await auth.signOut();return}const x=d.data();enter({id:uid,role:x.role,name:x.name,username:x.username})}
+async function loadProfile(uid){const d=await db.doc('users/'+uid).get();if(!d.exists){await auth.signOut();return}const x=d.data();enter({id:uid,role:x.role,name:x.name,username:x.username,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes})}
 const DOM='@users.explorelms.app';
 const AERR={'auth/email-already-in-use':'Username already taken','auth/invalid-credential':'Invalid username or password','auth/wrong-password':'Invalid username or password','auth/user-not-found':'Invalid username or password','auth/invalid-login-credentials':'Invalid username or password','auth/weak-password':'Password must be at least 6 characters','auth/operation-not-allowed':'Enable Email/Password sign-in in Firebase → Authentication → Sign-in method','auth/too-many-requests':'Too many attempts. Try again later.'};
 const aerr=e=>AERR[e.code]||('Failed: '+(e.code||'')+' '+(e.message||e));
@@ -63,72 +68,76 @@ async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').valu
 function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render()}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
 function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
- c('materials','mats');c('exams','exams');
- if(T){c('submissions','subs');c('users','users');c('examKeys','keysL')}else{c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
-function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.sent=[];S.results=[];auth.signOut();render()}
-function stuView(){return`<div class="card"><b>Students</b><p class="mu">Students and teachers create their own accounts using “Sign up”.</p><table><tr><th>Name</th><th>Username</th><th></th></tr>${S.users.filter(u=>u.role=='student').map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td><a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove profile</a></td></tr>`).join('')}</table></div>`}
+ c('materials','mats');c('exams','exams');c('syllabus','syl');
+ if(T){c('progress','prog');c('submissions','subs');c('users','users');c('examKeys','keysL')}else{U.push(db.doc('users/'+me).onSnapshot(d=>{const x=d.data();if(x){Object.assign(S.user,{name:x.name,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes});if(!S.taking)render()}}));c('progress','prog',db.collection('progress').where('uid','==',me));c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
+function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.syl=[];S.prog=[];S.pstu=null;S.editStu=null;S.pf='all';S.sent=[];S.results=[];auth.signOut();render()}
+function stuView(){const st=S.users.filter(u=>u.role=='student'),ed=S.editStu&&st.find(u=>u.id==S.editStu),f=(k,l,t)=>`<div><span class="mu">${l}</span><input id="sd_${k}" type="${t||'text'}" value="${esc(ed[k])}"></div>`;
+ return`${ed?`<div class="card"><b>Student details – ${esc(ed.name)}</b><div class="det">${f('phone','Phone','tel')}${f('email','Email','email')}${f('batch','Batch / Class')}${f('joined','Joining date','date')}</div><span class="mu">Notes</span><textarea id="sd_notes" rows="2">${esc(ed.notes)}</textarea><p><button onclick="saveStu('${ed.id}')">Save details</button> <button class="g" onclick="S.editStu=null;render()">Cancel</button> <span class="er" id="sdm"></span></p></div>`:''}
+ <div class="card"><b>Upload student details</b><p class="mu">Upload an Excel/CSV with columns: <code>Username</code> (or <code>Name</code>), Phone, Email, Batch, Joined, Notes. Details are matched to students who have signed up.</p><input type="file" accept=".xlsx,.xls,.csv" onchange="upStu(this)"><span class="mu" id="ust"></span></div>
+ <div class="card"><b>Students</b><p class="mu">Students create their own accounts using “Sign up”. Click “Details” to add phone, batch etc.</p><div style="overflow-x:auto"><table><tr><th>Name</th><th>Username</th><th>Phone</th><th>Batch</th><th>Course progress</th><th></th></tr>${st.map(u=>{const c=counts(u.id);return`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(u.phone)||'<span class="mu">–</span>'}</td><td>${esc(u.batch)||'<span class="mu">–</span>'}</td><td>${c.p}%</td><td><a href="#" onclick="S.editStu='${u.id}';render();return false">Details</a> · <a href="#" onclick="S.tab='progress';S.pstu='${u.id}';render();return false">Progress</a> · <a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove</a></td></tr>`}).join('')}</table></div></div>`}
+async function upStu(inp){const f=inp.files[0];if(!f)return;const st=$('#ust');st.textContent='Reading…';
+ try{const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),stus=S.users.filter(u=>u.role=='student'),b=db.batch();let ok=0;const miss=[];
+  rows.forEach(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();const un=(g.username||'').toLowerCase(),nm=(g.name||'').toLowerCase(),u=stus.find(x=>un&&x.username==un)||stus.find(x=>nm&&x.name.toLowerCase()==nm);
+   if(!u){miss.push(g.username||g.name||'(blank)');return}const d={};['phone','email','batch','joined','notes'].forEach(k=>{if(g[k])d[k]=g[k]});if(Object.keys(d).length){b.update(db.doc('users/'+u.id),d);ok++}});
+  await b.commit();st.textContent=ok+' student(s) updated.'+(miss.length?' Not found: '+miss.join(', '):'')}catch(e){st.textContent='Error: '+(e.message||e.code||e)}inp.value=''}
+async function saveStu(id){const g=k=>$('#sd_'+k).value.trim();try{await db.doc('users/'+id).update({phone:g('phone'),email:g('email'),batch:g('batch'),joined:g('joined'),notes:g('notes')});S.editStu=null;render()}catch(e){$('#sdm').textContent='Could not save: '+(e.message||e.code)}}
+/* ---------- syllabus & course progress ---------- */
+const sylList=()=>S.syl.slice().sort((a,b)=>a.ts-b.ts);
+const progOf=u=>((S.prog.find(p=>p.id==u)||{}).done)||{};
+function walk(list,fn){(list||[]).forEach(n=>{fn(n);walk(n.subs,fn)})}
+function counts(u,tp){const d=progOf(u);let t=0,n=0;walk(tp?tp.subs:sylList().flatMap(x=>x.subs||[]),x=>{t++;if(d[x.id])n++;(x.sw||[]).forEach(w=>{t++;if(d[x.id+'_'+w.id])n++})});return{t,n,p:t?Math.round(n*100/t):0}}
+const tk=(on,key,u,ed)=>`<span class="tk ${on?'on':''} ${ed?'ed':''}" ${ed?`onclick="togProg('${u}','${key}')" title="Click to mark / unmark"`:''}>${on?'✓':''}</span>`;
+async function togProg(u,key){const d={...progOf(u)};if(d[key])delete d[key];else d[key]=true;try{await db.doc('progress/'+u).set({uid:u,done:d})}catch(e){alert('Could not save: '+(e.message||e.code))}}
+const bar=p=>`<div class="bar"><i style="width:${p}%"></i></div>`;
+const want=(on,f)=>f=='all'||!!on==(f=='done');
+function vis(n,dn,f){return want(dn[n.id],f)||(n.sw||[]).some(w=>want(dn[n.id+'_'+w.id],f))||(n.subs||[]).some(x=>vis(x,dn,f))}
+function detCard(o){const r=(l,v)=>`<div><span>${l}</span>${esc(v)||'–'}</div>`;return`<div class="card"><b>${esc(o.name)}</b> <span class="mu">@${esc(o.username)}</span><div class="det" style="margin-top:8px">${r('Phone',o.phone)}${r('Email',o.email)}${r('Batch / Class',o.batch)}${r('Joined',o.joined)}</div>${o.notes?`<p class="mu">${esc(o.notes)}</p>`:''}</div>`}
+function progNode(n,o,T,dn,f,d){if(!vis(n,dn,f))return'';
+ return`<div style="margin-left:${d?20:0}px"><div class="sr">${tk(dn[n.id],n.id,o.id,T)}<span style="flex:1 1 auto"><b>${esc(n.name)}</b></span></div>${(n.sw||[]).filter(w=>want(dn[n.id+'_'+w.id],f)).map(w=>`<div class="sw">${tk(dn[n.id+'_'+w.id],n.id+'_'+w.id,o.id,T)}<span style="color:var(--tx)">🛠 ${esc(w.name)}</span></div>`).join('')}${(n.subs||[]).map(x=>progNode(x,o,T,dn,f,d+1)).join('')}</div>`}
+function progBody(o,T){const L=sylList(),c=counts(o.id),d=progOf(o.id),f=S.pf,fb=(k,l)=>`<button class="${f==k?'':'g'}" onclick="S.pf='${k}';render()">${l}</button>`;
+ return`${detCard(o)}<div class="card"><b>Overall progress</b> <span class="mu">${c.p}%</span>${bar(c.p)}<p style="margin:10px 0 0"><span class="ok"><b>✓ Covered: ${c.n}</b></span> &nbsp; <span class="mu"><b>○ Pending: ${c.t-c.n}</b></span></p></div>
+ <div class="row" style="margin-bottom:12px">${fb('all','All')}${fb('done','Covered')}${fb('pending','Pending')}</div>
+ ${L.map(t=>{const tc=counts(o.id,t),body=(t.subs||[]).map(x=>progNode(x,o,T,d,f,0)).join('');if(f!='all'&&!body)return'';return`<div class="card"><div class="row"><b style="flex:1 1 auto">${esc(t.name)}</b><span class="mu" style="flex:0 0 auto">${tc.n}/${tc.t} · ${tc.p}%</span></div>${bar(tc.p)}${body||'<p class="mu">No sub topics added yet.</p>'}</div>`}).join('')||'<p class="mu">The teacher has not created a syllabus yet.</p>'}`}
+function progView(T){
+ if(!T)return progBody(S.user,false);
+ const st=S.users.filter(u=>u.role=='student'),cur=st.find(u=>u.id==S.pstu);
+ return`<div class="grid"><div><p class="mu">Select a student</p>${st.map(u=>`<div class="item ${cur&&cur.id==u.id?'on':''}" onclick="S.pstu='${u.id}';render()">${esc(u.name)} <span class="tag">${counts(u.id).p}%</span></div>`).join('')||'<p class="mu">No students have signed up yet.</p>'}</div>
+ <div>${cur?`<p class="mu">Tap a box to mark it complete (green ✓). Tap again to clear.</p>${progBody(cur,true)}`:'<div class="card"><p class="mu">Select a student to see and update their course progress.</p></div>'}</div></div>`}
+function sylNode(tid,n,d){return`<div class="item" style="cursor:default;${d?'margin:8px 0 0 14px':''}"><div class="row"><span style="flex:1 1 auto">${d?'↳':'📄'} <b>${esc(n.name)}</b></span><a href="#" style="flex:0 0 auto" onclick="renNode('${tid}','${n.id}');return false">rename</a><a href="#" class="er" style="flex:0 0 auto" onclick="delSub('${tid}','${n.id}');return false">remove</a></div>
+ <div style="margin:4px 0">${(n.sw||[]).map(w=>`<span class="tag">🛠 ${esc(w.name)} <a href="#" class="er" onclick="delSw('${tid}','${n.id}','${w.id}');return false">✕</a></span> `).join('')||'<span class="mu">No software added</span>'}</div>
+ <div class="row"><input id="sw_${n.id}" placeholder="Software (comma separate for several)"><button class="g" onclick="addSw('${tid}','${n.id}')">＋ Software</button></div>
+ ${(n.subs||[]).map(x=>sylNode(tid,x,d+1)).join('')}
+ <div class="row" style="margin-top:8px"><input id="sb_${n.id}" placeholder="New sub topic under “${esc(n.name)}”"><button onclick="addSub('${tid}','${n.id}')">＋ Sub topic</button></div></div>`}
+function sylView(){return`<div class="card"><b>Syllabus</b><p class="mu">Create topics, then sub topics (and sub topics inside sub topics, as deep as needed). Each sub topic can list the software used. Track students under “Course Progress”.</p><div class="row"><input id="tpn" placeholder="New topic name (e.g. SEO)"><button onclick="addTopic()">＋ Add topic</button></div></div>
+ ${sylList().map(t=>`<div class="card"><div class="row"><b style="flex:1 1 auto">${esc(t.name)}</b><button class="g" onclick="renTopic('${t.id}')">Rename</button><button class="d" onclick="delDoc('syllabus','${t.id}')">Delete topic</button></div>
+ ${(t.subs||[]).map(x=>sylNode(t.id,x,0)).join('')}
+ <div class="row" style="margin-top:8px"><input id="sb_${t.id}" placeholder="New sub topic"><button onclick="addSub('${t.id}','')">＋ Sub topic</button></div></div>`).join('')}`}
+function fnd(list,id){for(let i=0;i<list.length;i++){if(list[i].id==id)return{arr:list,i,n:list[i]};const r=fnd(list[i].subs||[],id);if(r)return r}return null}
+async function upT(id,fn){const t=S.syl.find(x=>x.id==id),c=JSON.parse(JSON.stringify(t.subs||[]));fn(c);try{await db.doc('syllabus/'+id).update({subs:c})}catch(e){alert('Could not save: '+(e.message||e.code))}}
+async function addTopic(){const n=$('#tpn').value.trim();if(!n)return;try{await db.collection('syllabus').add({name:n,subs:[],ts:Date.now()})}catch(e){alert('Could not save: '+(e.message||e.code))}}
+async function renTopic(id){const t=S.syl.find(x=>x.id==id),n=(prompt('Topic name',t.name)||'').trim();if(n)await db.doc('syllabus/'+id).update({name:n})}
+function renNode(tid,nid){const r=fnd(S.syl.find(x=>x.id==tid).subs||[],nid),n=(prompt('Name',r.n.name)||'').trim();if(n)upT(tid,c=>{fnd(c,nid).n.name=n})}
+function addSub(tid,pid){const n=$('#sb_'+(pid||tid)).value.trim();if(n)upT(tid,c=>{const x={id:uid(),name:n,sw:[],subs:[]};if(pid){const p=fnd(c,pid).n;p.subs=p.subs||[];p.subs.push(x)}else c.push(x)})}
+function delSub(tid,nid){if(confirm('Remove this sub topic and everything inside it?'))upT(tid,c=>{const r=fnd(c,nid);r.arr.splice(r.i,1)})}
+function addSw(tid,nid){const v=$('#sw_'+nid).value.split(',').map(x=>x.trim()).filter(Boolean);if(v.length)upT(tid,c=>{const x=fnd(c,nid).n;x.sw=x.sw||[];v.forEach(n=>x.sw.push({id:uid(),name:n}))})}
+function delSw(tid,nid,wid){upT(tid,c=>{const x=fnd(c,nid).n;x.sw=x.sw.filter(w=>w.id!=wid)})}
 async function delDoc(c,id){if(!confirm('Delete this?'))return;await db.doc(c+'/'+id).delete();if(c=='exams')await db.doc('examKeys/'+id).delete()}
-const tc=s=>s===s.toUpperCase()?s.toLowerCase().replace(/(^|[\s–\-(])([a-z])/g,(x,a,b)=>a+b.toUpperCase()):s;
-function parseDocxHtml(html){
- const doc=new DOMParser().parseFromString(html,'text/html'),out=[];let sec='',dm=null,keyMode=false;const key={};
- const SEC=/^section\b/i,CNT=/^(\d+)\s*questions?.*?[×x*]\s*(\d+(?:\.\d+)?)\s*marks?/i,KEYH=/^answer\s*keys?\b/i,
-  SKIP=/^(total marks|time\s*:|choose the|answer all|instructions?|note\s*:)/i;
- function handleP(t){t=t.trim();if(!t)return;
-  if(SEC.test(t)){sec=t;dm=null;keyMode=false;return}
-  let m;if(m=t.match(CNT)){dm=+m[2];return}
-  if(KEYH.test(t)){keyMode=true;return}
-  if(keyMode){for(const k of t.matchAll(/(\d+)\s*[-.):=]?\s*([A-E])\b/gi))key[+k[1]]=k[2];return}
-  if(SKIP.test(t))return}
- (function walk(node){for(const el of node.children){
-   const tag=el.tagName;
-   if(tag==='P'||tag==='H1'||tag==='H2'||tag==='H3')handleP(el.textContent);
-   else if(tag==='OL'||tag==='UL'){
-    for(const li of el.children){if(li.tagName!=='LI')continue;
-     const nested=li.querySelector('ol,ul'),clone=li.cloneNode(true);const ns=clone.querySelector('ol,ul');if(ns)ns.remove();
-     const qt=clone.textContent.trim();if(!qt)continue;
-     const opts=nested?[...nested.children].filter(c=>c.tagName==='LI').map(c=>c.textContent.trim()):[];
-     out.push({n:out.length+1,q:qt,type:opts.length>1?'mcq':'para',opts,ai:-1,marks:dm||1,sec:tc(sec)})}}
-   else if(tag==='TABLE'){} // not handled
-   else walk(el)}})(doc.body);
- out.forEach(q=>{if(q.type=='mcq'&&key[q.n])q.ai='ABCDE'.indexOf(key[q.n].toUpperCase())});
- return out}
-
-function parseText(t){const qs=[];let c=null,m,sec='',dm=null,keyMode=false;const key={};
- t.split(/\r?\n/).forEach(raw=>{raw=raw.trim();(/^\(?A[.)]\s/i.test(raw)?raw.split(/\s+(?=\(?[B-E][.)]\s)/):[raw]).forEach(l=>{l=l.trim();if(!l)return;
-  if(/^section\b/i.test(l)){sec=l;dm=null;c=null;keyMode=false;return}
-  if(m=l.match(/^(\d+)\s*questions?.*?[×x*]\s*(\d+(?:\.\d+)?)\s*marks?/i)){dm=+m[2];c=null;return}
-  if(/^answer\s*keys?\b/i.test(l)){keyMode=true;c=null;return}
-  if(keyMode){for(const k of l.matchAll(/(\d+)\s*[-.):=]?\s*([A-E])\b/gi))key[+k[1]]=k[2];return}
-  if(/^(total marks|time\s*:|choose the|answer all|instructions?|note\s*:)/i.test(l)){c=null;return}
-  if(m=l.match(/^(?:Q\.?\s*)?(\d+)[.)]\s*(.+)/i)){c={n:+m[1],q:m[2],opts:[],ans:'',marks:null,sec,dm};qs.push(c)}
-  else if(c&&(m=l.match(/^\(?([A-E])[.)]\s*(.+)/i)))c.opts.push(m[2]);
-  else if(c&&(m=l.match(/^(?:ans(?:wer)?|correct)\s*[:\-]\s*(.+)/i)))c.ans=m[1].trim();
-  else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l})});
- return qs.map(q=>{let m=q.q.match(/[\[(]\s*(\d+(?:\.\d+)?)\s*marks?\s*[\])]/i);if(m){q.marks=+m[1];q.q=q.q.replace(m[0],'').trim()}
-  const a=(q.ans||key[q.n]||'').trim(),mc=q.opts.length>1;
-  return{n:q.n,q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc&&a?'ABCDE'.indexOf(a.charAt(0).toUpperCase()):-1,marks:q.marks??q.dm??1,sec:tc(q.sec)}})}
-async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#est'),nm=$('#secn').value.trim()||'Section '+(S.draft.secs.length+1),type=$('#sect').value,mk=parseFloat($('#secm').value);st.textContent='Reading…';
- try{let qs=await readFile(f),skipped=0,add=[];
-  if(type=='auto'){const g={};qs.forEach(q=>{const k=q.sec||nm;(g[k]=g[k]||[]).push(q)});Object.entries(g).forEach(([n,a])=>{const t=a.every(q=>q.type=='mcq')?'mcq':'para';add.push({name:n,type:t,qs:a.map(q=>t=='para'?{...q,type:'para',opts:[],ai:-1}:q)})})}
-  else{qs=qs.map(q=>type=='para'?{...q,type:'para',opts:[],ai:-1}:q).filter(q=>{if(type=='mcq'&&q.type!='mcq'){skipped++;return false}return true});if(qs.length)add.push({name:nm,type,qs})}
-  if(mk>0)add.forEach(s=>s.qs.forEach(q=>q.marks=mk));
-  if(!add.length)throw Error(type=='mcq'?'No multiple-choice questions found (each needs options A–D)':'No questions found – check the file format');
-  const nokey=add.reduce((t,s)=>t+(s.type=='mcq'?s.qs.filter(q=>q.ai<0).length:0),0);
-  S.note='Added '+add.length+' section(s). '+(skipped?skipped+' question(s) without options were skipped. ':'')+(nokey?nokey+' multiple-choice question(s) have no answer key – set it below (key box or dropdown).':'');
-  S.draft.secs.push(...add);render()}catch(e){st.textContent='Error: '+(e.message||e)}}
-function applyKey(i,v){const sec=S.draft.secs[i],pairs=[...v.matchAll(/(\d+)\s*[-.):=]?\s*([A-E])\b/gi)];
- if(pairs.length)pairs.forEach(m=>{const q=sec.qs.find(x=>x.n==+m[1]);if(q&&q.type=='mcq')q.ai='ABCDE'.indexOf(m[2].toUpperCase())});
- else(v.match(/[A-E]/gi)||[]).forEach((c,k)=>{const q=sec.qs[k];if(q&&q.type=='mcq')q.ai='ABCDE'.indexOf(c.toUpperCase())});
- S.note='Answer key applied: '+sec.qs.filter(q=>q.ai>=0).length+' of '+sec.qs.length+' questions in “'+sec.name+'” have a key.';render()}
-
+async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#est'),name=$('#secn').value.trim()||'Section '+(S.draft.secs.length+1),type=$('#sect').value,mk=parseFloat($('#secm').value);st.textContent='Reading…';
+ try{let qs=await readFile(f),skipped=0;
+  qs=qs.map(q=>type=='para'?{...q,type:'para',opts:[],ai:-1}:q).filter(q=>{if(type=='mcq'&&q.type!='mcq'){skipped++;return false}return true});
+  if(mk>0)qs.forEach(q=>q.marks=mk);
+  if(!qs.length)throw Error(type=='mcq'?'No multiple-choice questions found (each needs options A–D)':'No questions found – check the file format');
+  const nokey=type=='mcq'?qs.filter(q=>q.ai<0).length:0;
+  S.note=(skipped?skipped+' question(s) without options were skipped. ':'')+(nokey?nokey+' question(s) have no answer key – you can mark them manually.':'');
+  S.draft.secs.push({name,type,qs});render()}catch(e){st.textContent='Error: '+(e.message||e)}}
 function tExams(){const d=S.draft;
  return`<div class="card">${!d?`<b>Exam papers</b><p class="mu">Build an exam from sections, e.g. Section 1 – Multiple choice, Section 2 – Paragraph. Each section is uploaded separately from a Word, Excel or PDF file.</p><button onclick="S.draft={title:'',secs:[]};S.note='';render()">＋ Create new exam</button>`:`<b>New exam</b><input placeholder="Exam title" value="${esc(d.title)}" oninput="S.draft.title=this.value">
- ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks${s.type=='mcq'?' · key '+s.qs.filter(q=>q.ai>=0).length+'/'+s.qs.length:''} <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>${s.type=='mcq'?`<br><input placeholder="Answer key: B C A D … or 1-B, 2-C …" onchange="applyKey(${i},this.value)">`:''}
- <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}${q.type=='mcq'?`<br><label class="mu">Correct: <select style="width:auto" onchange="S.draft.secs[${i}].qs[${j}].ai=+this.value"><option value="-1">not set</option>${q.opts.map((o,k)=>`<option value="${k}" ${k==q.ai?'selected':''}>${'ABCDE'[k]}</option>`).join('')}</select></label>`:''}</p>`).join('')}</details></div>`).join('')}
+ ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>
+ <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}</p>`).join('')}</details></div>`).join('')}
  <div class="card" style="background:var(--bg)"><b>Add section ${d.secs.length+1}</b>
- <div class="row"><input id="secn" placeholder="Section name" value="Section ${d.secs.length+1}"><select id="sect"><option value="auto">Whole paper – auto-detect sections</option><option value="mcq">Multiple choice</option><option value="para">Paragraph / descriptive</option></select><input id="secm" type="number" min="0" step="0.5" placeholder="Marks per question (blank = use file)"></div>
+ <div class="row"><input id="secn" placeholder="Section name" value="Section ${d.secs.length+1}"><select id="sect"><option value="mcq">Multiple choice</option><option value="para">Paragraph / descriptive</option></select><input id="secm" type="number" min="0" step="0.5" placeholder="Marks per question (blank = use file)"></div>
  <input id="secf" type="file" accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="addSection(this)"><span class="mu" id="est">${esc(S.note||'')}</span>
- <details><summary class="mu">Expected file format</summary><p class="mu">Choose “Whole paper” to upload a paper that has several sections – headings like <code>SECTION A – …</code> and lines like <code>30 Questions × 1 Mark</code> are detected automatically. Word/PDF: <code>1. Question text [2 marks]</code>; options <code>A. …</code> to <code>D. …</code>; optional <code>Answer: B</code> line or an <code>Answer Key</code> list at the end.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
+ <details><summary class="mu">Expected file format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>; for multiple choice add options <code>A) …</code> to <code>D) …</code> and <code>Answer: B</code>.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
  <button ${d.secs.length?'':'disabled'} onclick="saveExam()">Publish exam to students</button> <button class="g" onclick="S.draft=null;render()">Discard</button>`}</div>
  ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
  <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
@@ -176,10 +185,10 @@ const authGo=()=>S.mode=='signup'?signup():login();
 function render(){const a=$('#app');
  if(!db){a.innerHTML=cfgView();return}
  if(!S.user){a.innerHTML=authView();return}
- const T=S.user.role=='teacher',tabs=T?[['exams','Exams'],['ebooks','E-books'],['videos','Videos'],['students','Students']]:[['ebooks','E-books'],['videos','Videos'],['exams','Exams & Results']];
+ const T=S.user.role=='teacher',tabs=T?[['exams','Exams'],['ebooks','E-books'],['videos','Videos'],['syllabus','Syllabus'],['progress','Course Progress'],['students','Students']]:[['ebooks','E-books'],['videos','Videos'],['exams','Exams & Results'],['progress','Course Progress']];
  a.innerHTML=`<header><b>📣 Explore Learning – Digital Marketing</b><span>${esc(S.user.name)} <span class="tag">${S.user.role}</span> <button class="g" onclick="logout()">Logout</button></span></header><main>
  ${S.taking?'':`<div class="tabs">${tabs.map(([k,l])=>`<button class="${S.tab==k?'on':''}" onclick="S.tab='${k}';S.open=null;S.mat=null;render()">${l}</button>`).join('')}</div>`}
- ${S.taking?takeView():S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():T?(S.open?markView():tExams()):sExams()}</main>`}
+ ${S.taking?takeView():S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`}
 /* ---------- materials ---------- */
 function emb(u){let m;if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return'https://drive.google.com/file/d/'+m[1]+'/preview';if(m=u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/))return'https://www.youtube.com/embed/'+m[1];
  if(/facebook\.com|fb\.watch/.test(u))return'https://www.facebook.com/plugins/video.php?show_text=false&href='+encodeURIComponent(u);
@@ -194,15 +203,21 @@ async function addMat(type){let t=$('#mt').value.trim(),u=$('#mu').value.trim(),
   await db.collection('materials').add({type,title:t,url:u,ts:Date.now()})}catch(e){st.textContent='Error: '+(e.message||e.code)}}
 /* ---------- students ---------- */
 /* ---------- exam parsing ---------- */
+function parseText(t){const qs=[];let c=null,m;t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
+ if(m=l.match(/^(?:Q\.?\s*)?(\d+)[.)]\s*(.+)/i)){c={q:m[2],opts:[],ans:'',marks:1};qs.push(c)}
+ else if(c&&(m=l.match(/^\(?([A-D])[.)]\s*(.+)/i)))c.opts.push(m[2]);
+ else if(c&&(m=l.match(/^(?:ans(?:wer)?|correct)\s*[:\-]\s*(.+)/i)))c.ans=m[1].trim();
+ else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l});
+ return qs.map(q=>{let m=q.q.match(/[\[(]\s*(\d+)\s*marks?\s*[\])]/i);if(m){q.marks=+m[1];q.q=q.q.replace(m[0],'').trim()}
+  const mc=q.opts.length>1;return{q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc?'ABCD'.indexOf(q.ans.charAt(0).toUpperCase()):-1,marks:q.marks}})}
 async function readFile(f){const n=f.name.toLowerCase(),buf=await f.arrayBuffer();
  if(/\.xlsx?$/.test(n)||n.endsWith('.csv')){const wb=XLSX.read(buf),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
   return rows.map(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();
    const opts=['a','b','c','d','e'].map(x=>g['option '+x]||g[x]||g['option'+x]||'').filter(Boolean),q=g.question||g.q||'';
    const mc=opts.length>1&&!/para/i.test(g.type||''),an=(g.answer||g.correct||'').toUpperCase();
    let ai=mc?'ABCDE'.indexOf(an.charAt(0)):-1;if(mc&&ai>=0&&an.length>1){const j=opts.findIndex(o=>o.toUpperCase()==an);if(j>=0)ai=j}
-   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1,sec:g.section||'',n:+(g.no||g['q no']||g.number||0)||0}}).filter(q=>q.q)}
- if(n.endsWith('.docx')){const raw=(await mammoth.convertToHtml({arrayBuffer:buf})).value,byList=parseDocxHtml(raw);if(byList.length)return byList;
-  const h=raw.replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|li|tr|h\d)>/gi,'\n').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');return parseText(h)}
+   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1}}).filter(q=>q.q)}
+ if(n.endsWith('.docx'))return parseText((await mammoth.extractRawText({arrayBuffer:buf})).value);
  if(n.endsWith('.pdf')){const pdf=await pdfjsLib.getDocument({data:buf}).promise;let t='';
   for(let i=1;i<=pdf.numPages;i++){const c=await(await pdf.getPage(i)).getTextContent();let y=null;c.items.forEach(it=>{const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)t+='\n';t+=it.str+' ';y=yy});t+='\n'}
   return parseText(t)}
