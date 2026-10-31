@@ -31,6 +31,9 @@ iframe{width:100%;height:60vh;min-height:320px;border:0;border-radius:8px;backgr
 .bar{height:9px;border-radius:99px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
 .sr{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--bd)}.sw{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 36px;font-size:14px;color:var(--mu)}
 .det{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px 14px}.det span{display:block;font-size:12px;color:var(--mu)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100}
+.modal .box{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:18px;width:100%;max-width:520px;max-height:92vh;overflow:auto}
+.modal .box h3{margin:0 0 4px}.modal .box .det span{margin-top:6px}
 </style></head><body><div id="app"></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
@@ -74,7 +77,32 @@ function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S
 function stuView(){const st=S.users.filter(u=>u.role=='student'),ed=S.editStu&&st.find(u=>u.id==S.editStu),f=(k,l,t)=>`<div><span class="mu">${l}</span><input id="sd_${k}" type="${t||'text'}" value="${esc(ed[k])}"></div>`;
  return`${ed?`<div class="card"><b>Student details – ${esc(ed.name)}</b><div class="det">${f('phone','Phone','tel')}${f('email','Email','email')}${f('batch','Batch / Class')}${f('joined','Joining date','date')}</div><span class="mu">Notes</span><textarea id="sd_notes" rows="2">${esc(ed.notes)}</textarea><p><button onclick="saveStu('${ed.id}')">Save details</button> <button class="g" onclick="S.editStu=null;render()">Cancel</button> <span class="er" id="sdm"></span></p></div>`:''}
  <div class="card"><b>Upload student details</b><p class="mu">Upload an Excel/CSV with columns: <code>Username</code> (or <code>Name</code>), Phone, Email, Batch, Joined, Notes. Details are matched to students who have signed up.</p><input type="file" accept=".xlsx,.xls,.csv" onchange="upStu(this)"><span class="mu" id="ust"></span></div>
- <div class="card"><b>Students</b><p class="mu">Students create their own accounts using “Sign up”. Click “Details” to add phone, batch etc.</p><div style="overflow-x:auto"><table><tr><th>Name</th><th>Username</th><th>Phone</th><th>Batch</th><th>Course progress</th><th></th></tr>${st.map(u=>{const c=counts(u.id);return`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(u.phone)||'<span class="mu">–</span>'}</td><td>${esc(u.batch)||'<span class="mu">–</span>'}</td><td>${c.p}%</td><td><a href="#" onclick="S.editStu='${u.id}';render();return false">Details</a> · <a href="#" onclick="S.tab='progress';S.pstu='${u.id}';render();return false">Progress</a> · <a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove</a></td></tr>`}).join('')}</table></div></div>`}
+ <div class="card"><div class="row" style="justify-content:space-between"><b>Students</b><button onclick="openStu()">＋ Add student</button></div><p class="mu">Add a student with “Add student”, or students can create their own accounts using “Sign up”. Click “Details” to edit phone, batch etc.</p><div style="overflow-x:auto"><table><tr><th>Name</th><th>Username</th><th>Phone</th><th>Batch</th><th>Course progress</th><th></th></tr>${st.map(u=>{const c=counts(u.id);return`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(u.phone)||'<span class="mu">–</span>'}</td><td>${esc(u.batch)||'<span class="mu">–</span>'}</td><td>${c.p}%</td><td><a href="#" onclick="S.editStu='${u.id}';render();return false">Details</a> · <a href="#" onclick="S.tab='progress';S.pstu='${u.id}';render();return false">Progress</a> · <a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove</a></td></tr>`}).join('')}</table></div></div>`}
+function openStu(){if($('#stuModal'))return;const d=document.createElement('div');d.id='stuModal';d.className='modal';
+ const f=(k,l,t,ph)=>`<div><span>${l}</span><input id="ns_${k}" type="${t||'text'}" placeholder="${ph||''}" autocomplete="off" autocapitalize="none"></div>`;
+ d.innerHTML=`<div class="box"><h3>Add student</h3><p class="mu">Creates the student's login. They will see E-books, Videos, Exams &amp; Results and their course progress.</p>
+ <b class="mu">Login details</b><div class="det">${f('name','Full name *','text','Full name')}${f('user','Username or email * (3+ chars)','text','Username or email')}${f('pw','Password * (6+ chars)','text','Password')}${f('pw2','Confirm password *','text','Confirm password')}</div>
+ <b class="mu" style="display:block;margin-top:12px">Student details (optional)</b><div class="det">${f('phone','Phone','tel')}${f('email','Email','email')}${f('batch','Batch / Class')}${f('joined','Joining date','date')}</div>
+ <span class="mu" style="display:block;margin-top:6px;font-size:12px">Notes</span><textarea id="ns_notes" rows="2"></textarea>
+ <p class="er" id="nsm"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeStu()">Cancel</button><button id="nsb" onclick="addStudent()">Add student</button></div></div>`;
+ d.addEventListener('mousedown',e=>{if(e.target===d)closeStu()});document.body.appendChild(d);$('#ns_name').focus()}
+const closeStu=()=>{const m=$('#stuModal');if(m)m.remove()};
+document.addEventListener('keydown',e=>{if(e.key=='Escape')closeStu()});
+async function addStudent(){const g=k=>$('#ns_'+k).value.trim(),n=g('name'),u=g('user').toLowerCase().replace(/[^a-z0-9_.@+-]/g,''),p=$('#ns_pw').value,m=$('#nsm'),btn=$('#nsb');
+ if(!n||u.length<3||p.length<6)return m.textContent='Enter name, a username/email (3+ chars) and a password (6+ chars)';
+ if(p!==$('#ns_pw2').value)return m.textContent='Passwords do not match';
+ if(S.users.some(x=>x.username==u))return m.textContent='Username already taken';
+ btn.disabled=true;m.textContent='Creating…';let app,uid;
+ try{/* separate Firebase app so the teacher stays logged in */
+  app=firebase.initializeApp(firebaseConfig,'stu'+Date.now());const a2=app.auth();
+  uid=(await a2.createUserWithEmailAndPassword(u.includes('@')?u:u+DOM,p)).user.uid;
+  try{await app.firestore().doc('users/'+uid).set({username:u,name:n,role:'student'})}catch(e){try{await a2.currentUser.delete()}catch(x){}throw e}
+  await a2.signOut()}
+ catch(e){m.textContent=aerr(e);btn.disabled=false;if(app)try{await app.delete()}catch(x){}return}
+ try{await app.delete()}catch(x){}
+ const d={};['phone','email','batch','joined','notes'].forEach(k=>{if(g(k))d[k]=g(k)});
+ if(Object.keys(d).length)try{await db.doc('users/'+uid).update(d)}catch(e){alert('Student created, but extra details could not be saved ('+(e.message||e.code)+'). Use “Details” to add them.')}
+ closeStu()}
 async function upStu(inp){const f=inp.files[0];if(!f)return;const st=$('#ust');st.textContent='Reading…';
  try{const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),stus=S.users.filter(u=>u.role=='student'),b=db.batch();let ok=0;const miss=[];
   rows.forEach(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();const un=(g.username||'').toLowerCase(),nm=(g.name||'').toLowerCase(),u=stus.find(x=>un&&x.username==un)||stus.find(x=>nm&&x.name.toLowerCase()==nm);
