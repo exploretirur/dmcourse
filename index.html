@@ -94,6 +94,7 @@ table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1p
 .opt.good{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
 .opt.bad{border-color:var(--er);background:color-mix(in srgb,var(--er) 12%,var(--card))}
 @media(max-width:760px){.nav{overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{flex:1 0 auto;min-width:58px}}
+@media(max-width:760px){.nom{display:none}}
 </style></head><body><div id="app"><div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing</p><div class="spin"></div></div></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
@@ -495,13 +496,31 @@ function emb(u){let m;if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))retu
  if(/facebook\.com|fb\.watch/.test(u))return'https://www.facebook.com/plugins/video.php?show_text=false&href='+encodeURIComponent(u);
  if(m=u.match(/instagram\.com\/(p|reel|tv)\/([\w-]+)/))return'https://www.instagram.com/'+m[1]+'/'+m[2]+'/embed';return u}
 function matView(T){const k=S.tab=='ebooks'?'ebook':'video',L=S.mats.filter(m=>m.type==k).sort((a,b)=>b.ts-a.ts),cur=L.find(m=>m.id==S.mat)||L[0];
- return`${T?`<div class="card"><b>Add ${k=='ebook'?'e-book':'video'}</b><div class="row"><input id="mt" placeholder="Title"><input id="mu" placeholder="${k=='ebook'?'PDF link (Google Drive share link or any PDF URL)':'YouTube / Facebook / Instagram URL'}"></div>
- <button onclick="addMat('${k}')">Add</button> <span class="mu" id="mst"></span></div>`:''}
- <div class="grid"><div>${L.map(m=>`<div class="item ${cur&&cur.id==m.id?'on':''}" onclick="S.mat='${m.id}';render()">${k=='ebook'?'📘':'🎬'} ${esc(m.title)}${T?` <a href="#" class="er" onclick="event.stopPropagation();delDoc('materials','${m.id}');return false">✕</a>`:''}</div>`).join('')||'<p class="mu">Nothing uploaded yet.</p>'}</div>
- <div class="card">${cur?`<b>${esc(cur.title)}</b><br><iframe src="${esc(emb(cur.url))}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture"></iframe><p><a href="${esc(cur.url)}" target="_blank" rel="noopener">Open in new tab</a></p>`:'<p class="mu">Select an item to view it here.</p>'}</div></div>`}
+ return`${T?`<div class="card"><b>Add ${k=='ebook'?'e-book':'video'}</b><p class="mu">Upload the file straight from your phone or computer – no Google Drive needed. It is stored in your Firebase Storage and students can open it in the app.</p><button onclick="pickMat('${k}')">⬆ Upload ${k=='ebook'?'PDF / e-book':'video'}</button>
+ <details style="margin-top:10px"><summary class="mu">Or add a link instead (${k=='ebook'?'PDF link, Google Drive…':'YouTube, Facebook, Instagram…'})</summary><div class="row"><input id="mt" placeholder="Title"><input id="mu" placeholder="${k=='ebook'?'PDF link (Google Drive share link or any PDF URL)':'YouTube / Facebook / Instagram URL'}"></div><button onclick="addMat('${k}')">Add link</button> <span class="mu" id="mst"></span></details></div>`:''}
+ <div class="grid"><div>${L.map(m=>`<div class="item ${cur&&cur.id==m.id?'on':''}" onclick="S.mat='${m.id}';render()">${k=='ebook'?'📘':'🎬'} ${esc(m.title)}${T?` <a href="#" class="er" onclick="event.stopPropagation();delMat('${m.id}');return false">✕</a>`:''}</div>`).join('')||'<p class="mu">Nothing uploaded yet.</p>'}</div>
+ <div class="card">${cur?`<b>${esc(cur.title)}</b><br>${matViewer(cur,k)}`:'<p class="mu">Select an item to view it here.</p>'}</div></div>`}
 async function addMat(type){let t=$('#mt').value.trim(),u=$('#mu').value.trim(),st=$('#mst');
  try{if(!t||!u)return st.textContent='Enter a title and a link/file';
   await db.collection('materials').add({type,title:t,url:u,ts:Date.now()})}catch(e){st.textContent='Error: '+(e.message||e.code)}}
+function matViewer(cur,k){const u=urls(cur.url)[0]||cur.url||'';
+ if(cur.src=='file'||cur.path){
+  if(k=='video')return`<video class="mvid" style="max-height:70vh" src="${esc(u)}" controls preload="metadata" playsinline></video><p class="mu">${esc(cur.fname||'')} · ${sz(cur.size)}</p>`;
+  const pdf=/\.pdf$/i.test(cur.fname||'')||/pdf/.test(cur.mime||'');
+  return`${pdf?`<iframe class="nom" src="${esc(u)}"></iframe>`:''}<p><a class="btn" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${pdf?'📖 Open book':'⬇ Open / download'}</a></p><p class="mu">${esc(cur.fname||'')} · ${sz(cur.size)}</p>`}
+ return`<iframe src="${esc(emb(cur.url))}" allowfullscreen allow="autoplay;encrypted-media;picture-in-picture"></iframe><p><a href="${esc(cur.url)}" target="_blank" rel="noopener">Open in new tab</a></p>`}
+function pickMat(kind){const i=document.createElement('input');i.type='file';i.accept=kind=='ebook'?'.pdf,.epub,.doc,.docx,.ppt,.pptx,application/pdf':'video/*';i.onchange=()=>{const f=i.files[0];i.value='';if(f)prepMat(kind,f)};window._fi=i;i.click()}
+function prepMat(kind,f){const lim=kind=='ebook'?100:500;if(f.size/1048576>lim)return alert('File is larger than '+lim+' MB. Please compress it or add a link instead.');if(kind=='video'&&!/^video\//.test(f.type))return alert('Please choose a video file (MP4, MOV, WebM…).');
+ S.mu={kind,f};mkModal('matUp',`<div class="box"><h3>Upload ${kind=='ebook'?'e-book':'video'}</h3><p class="mu" style="word-break:break-all">${esc(f.name)} · ${sz(f.size)}</p><span class="mu">Title *</span><input id="mu_t" maxlength="120" value="${esc(f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '))}"><div class="bar" style="margin:12px 0 6px"><i id="mu_p" style="width:0%"></i></div><p class="mu" id="mu_s" style="margin:0">Ready to upload</p><p class="er" id="mu_m"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="cancelMat()">Cancel</button><button id="mu_b" onclick="doMat()">Upload</button></div></div>`,true)}
+function cancelMat(){if(S.mtask){try{S.mtask.cancel()}catch(e){}S.mtask=null}closeM('matUp')}
+async function doMat(){const{kind,f}=S.mu||{};if(!f)return;const t=$('#mu_t').value.trim(),m=$('#mu_m'),b=$('#mu_b');if(!t)return m.textContent='Enter a title';b.disabled=true;m.textContent='';
+ try{const path=`materials/${Date.now()}_${uid()}_${f.name.replace(/[^\w.\-]+/g,'_').slice(-80)}`,ref=stor().ref(path),task=ref.put(f,{contentType:f.type||'application/octet-stream'});S.mtask=task;
+  task.on('state_changed',sn=>{const p=Math.round(sn.bytesTransferred*100/sn.totalBytes),e=$('#mu_p'),x=$('#mu_s');if(e)e.style.width=p+'%';if(x)x.textContent=p+'% · '+sz(sn.bytesTransferred)+' of '+sz(sn.totalBytes)});
+  await task;const url=await ref.getDownloadURL();
+  await db.collection('materials').add({type:kind,title:t.slice(0,120),url,path,fname:f.name.slice(0,120),size:f.size,mime:f.type||'',src:'file',ts:Date.now()});
+  S.mtask=null;closeM('matUp');toast('✅ Uploaded',t)}
+ catch(e){S.mtask=null;const c=(e.code||'')+' '+(e.message||'');if(/canceled/.test(c))return;const mm=$('#mu_m'),bb=$('#mu_b');if(mm)mm.textContent=/unauthorized/.test(c)?'Upload blocked – add the Storage rule for “materials” (see setup steps).':/bucket|project-not-found|default|unknown/.test(c)?'Firebase Storage is not set up for this project yet (see setup steps).':'Upload failed: '+c;if(bb)bb.disabled=false}}
+async function delMat(id){const m=S.mats.find(x=>x.id==id);if(!m||!confirm('Delete “'+m.title+'”?'))return;try{if(m.path){try{await stor().ref(m.path).delete()}catch(e){}}await db.doc('materials/'+id).delete()}catch(e){alert('Could not delete: '+(e.message||e.code))}}
 /* ---------- students ---------- */
 /* ---------- exam parsing ---------- */
 function parseText(t){const qs=[];let c=null,m;t.split(/\r?\n/).forEach(l=>{l=l.trim();if(!l)return;
