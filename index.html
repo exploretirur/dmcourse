@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>Explore Learning – Digital Marketing LMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5b4bff"><meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Explore LMS">
+<meta name="description" content="Explore Learning – Digital Marketing course app">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -8,33 +13,76 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f5f6fa;--card:#fff;--tx:#1d2233;--mu:#6b7285;--pr:#2f5bea;--bd:#e0e3ec;--ok:#1a8f4c;--er:#d33}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1e2a;--tx:#e8eaf2;--mu:#98a0b5;--bd:#2c3040;--pr:#6c8cff}}
-:root[data-theme="dark"]{--bg:#12141c;--card:#1b1e2a;--tx:#e8eaf2;--mu:#98a0b5;--bd:#2c3040;--pr:#6c8cff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd);gap:8px;flex-wrap:wrap}
-header b{font-size:17px}main{max-width:1050px;margin:auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
-button{background:var(--pr);color:#fff;border:0;border-radius:7px;padding:8px 14px;cursor:pointer;font:inherit}
-button.g{background:transparent;color:var(--pr);border:1px solid var(--bd)}button.d{background:var(--er)}button:disabled{opacity:.5}
-input,textarea,select{width:100%;padding:8px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--tx);font:inherit;margin:4px 0}
-.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}.tabs button{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.tabs button.on{background:var(--pr);color:#fff}
+:root{--bg:#f4f5fb;--card:#fff;--tx:#1b1f3b;--mu:#6a7090;--pr:#5b4bff;--pr2:#8b5cf6;--bd:#e6e8f4;--ok:#12a150;--er:#e5484d;--sh:0 6px 20px rgba(40,40,100,.08)}
+html{scroll-padding-top:70px}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1120;--card:#181b30;--tx:#eceefb;--mu:#9aa0c3;--bd:#2a2e4a;--pr:#7c6dff;--pr2:#a78bfa;--sh:0 6px 20px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#0f1120;--card:#181b30;--tx:#eceefb;--mu:#9aa0c3;--bd:#2a2e4a;--pr:#7c6dff;--pr2:#a78bfa;--sh:0 6px 20px rgba(0,0,0,.35)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overscroll-behavior-y:contain}
+h2,h3{margin:0 0 6px}
+.hd{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;box-shadow:0 2px 12px rgba(60,40,160,.25)}
+.brand{display:flex;gap:10px;align-items:center;min-width:0}.brand b{display:block;font-size:16px;line-height:1.15}.brand small{opacity:.85;font-size:11px}
+.logo{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:20px;flex:none}
+.logo.big{width:76px;height:76px;border-radius:22px;font-size:40px;background:rgba(255,255,255,.22);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.hr{display:flex;gap:8px;align-items:center;flex:none}
+.av{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--pr);display:grid;place-items:center;font-weight:800}
+.ib{background:rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:6px 11px;min-height:34px;font-size:13px}
+.who{display:none}
+main{max-width:1050px;margin:auto;padding:14px 14px calc(92px + env(safe-area-inset-bottom,0px))}
+.pt{margin:4px 2px 14px;font-size:22px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;gap:2px;background:var(--card);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px rgba(0,0,0,.08)}
+.nav button{flex:1;min-width:0;background:none;color:var(--mu);padding:4px 2px;min-height:50px;border-radius:12px;font-size:10.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+.nav button .ic{font-size:21px;line-height:1}
+.nav button.on{color:var(--pr);background:color-mix(in srgb,var(--pr) 13%,transparent)}
+.nb{position:absolute;top:1px;left:calc(50% + 6px);background:var(--er);color:#fff;font-style:normal;font-size:10px;border-radius:99px;min-width:16px;height:16px;padding:0 4px;display:grid;place-items:center}
+@media(min-width:761px){
+ .who{display:block;line-height:1.15;text-align:right;font-size:13px}.who small{opacity:.85;text-transform:capitalize;display:block}
+ .nav{position:static;max-width:1050px;margin:14px auto 0;padding:0 14px;border:0;background:none;box-shadow:none;gap:8px;flex-wrap:wrap}
+ .nav button{flex:0 0 auto;flex-direction:row;font-size:14px;padding:8px 16px;min-height:42px;background:var(--card);border:1px solid var(--bd);gap:7px;color:var(--tx)}
+ .nav button .ic{font-size:17px}.nav button.on{background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;border-color:transparent}
+ .nb{position:static;margin-left:2px}main{padding-bottom:30px}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);overflow-x:auto}
+button{background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;border:0;border-radius:12px;padding:10px 16px;min-height:42px;font:inherit;font-weight:600;cursor:pointer;transition:transform .08s,opacity .2s}
+button:active{transform:scale(.97)}button.g{background:transparent;color:var(--pr);border:1px solid var(--bd)}button.d{background:var(--er)}button:disabled{opacity:.5}
+.ib{background:rgba(255,255,255,.2)}
+input,textarea,select{width:100%;padding:12px;border:1px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--tx);font:inherit;font-size:16px;margin:4px 0;outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--pr);box-shadow:0 0 0 3px color-mix(in srgb,var(--pr) 22%,transparent)}
+input[type=radio],input[type=checkbox]{width:auto}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1 1 140px}.row>button{flex:0 0 auto}
 .grid{display:grid;grid-template-columns:280px 1fr;gap:14px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
-.item{padding:8px;border:1px solid var(--bd);border-radius:7px;margin-bottom:6px;cursor:pointer}.item.on{border-color:var(--pr);background:color-mix(in srgb,var(--pr) 10%,transparent)}
-iframe{width:100%;height:60vh;min-height:320px;border:0;border-radius:8px;background:#000}
-.mu{color:var(--mu);font-size:13px}.tag{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--bd);font-size:12px}
-.opt{display:block;padding:9px;border:1px solid var(--bd);border-radius:7px;margin:6px 0;cursor:pointer}.opt input{width:auto;margin-right:8px}
-.ok{color:var(--ok)}.er{color:var(--er)}.login{max-width:360px;margin:12vh auto}table{width:100%;border-collapse:collapse}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}
-.tk{display:inline-flex;width:22px;height:22px;border:2px solid var(--bd);border-radius:5px;align-items:center;justify-content:center;font-weight:700;font-size:15px;line-height:1;color:#fff;flex:none;background:transparent}.tk.on{background:var(--ok);border-color:var(--ok)}.tk.ed{cursor:pointer}.tk.ed:hover{border-color:var(--ok)}
-.bar{height:9px;border-radius:99px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
-.sr{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--bd)}.sw{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 36px;font-size:14px;color:var(--mu)}
+.item{padding:12px;border:1px solid var(--bd);border-radius:12px;margin-bottom:8px;cursor:pointer;background:var(--card);transition:transform .08s}
+.item:active{transform:scale(.99)}.item.on{border-color:var(--pr);background:color-mix(in srgb,var(--pr) 10%,var(--card))}
+iframe{width:100%;height:60vh;min-height:320px;border:0;border-radius:12px;background:#000}
+.mu{color:var(--mu);font-size:13px}.tag{display:inline-block;padding:2px 10px;border-radius:99px;background:color-mix(in srgb,var(--pr) 14%,transparent);color:var(--pr);font-size:12px;font-weight:600}
+.opt{display:block;padding:12px;border:1px solid var(--bd);border-radius:12px;margin:8px 0;cursor:pointer}.opt input{margin-right:8px}
+.ok{color:var(--ok)}.er{color:var(--er)}a{color:var(--pr)}
+table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}th{font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.03em}
+.tk{display:inline-flex;width:24px;height:24px;border:2px solid var(--bd);border-radius:7px;align-items:center;justify-content:center;font-weight:700;font-size:15px;line-height:1;color:#fff;flex:none;background:transparent}.tk.on{background:var(--ok);border-color:var(--ok)}.tk.ed{cursor:pointer}.tk.ed:hover{border-color:var(--ok)}
+.bar{height:10px;border-radius:99px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#35c97a);border-radius:99px}
+.sr{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--bd)}.sw{display:flex;align-items:center;gap:8px;padding:4px 4px 4px 36px;font-size:14px;color:var(--mu)}
 .det{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px 14px}.det span{display:block;font-size:12px;color:var(--mu)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100}
-.modal .box{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:18px;width:100%;max-width:520px;max-height:92vh;overflow:auto}
+.modal{position:fixed;inset:0;background:rgba(10,10,30,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100;animation:fd .2s}
+.modal .box{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:20px;padding:18px;width:100%;max-width:520px;max-height:92vh;overflow:auto;animation:up .25s}
 .modal .box h3{margin:0 0 4px}.modal .box .det span{margin-top:6px}
-</style></head><body><div id="app"></div>
+@media(max-width:600px){.modal{align-items:flex-end;padding:0}.modal .box{max-width:none;border-radius:22px 22px 0 0;max-height:90dvh;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}}
+@keyframes fd{from{opacity:0}}@keyframes up{from{transform:translateY(40px);opacity:0}}
+.hero{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));background:linear-gradient(160deg,var(--pr),var(--pr2) 62%,#ec4899);color:#fff;text-align:center}
+.hero h1{margin:14px 0 2px;font-size:26px}.hero .sub{margin:0 0 18px;opacity:.9}.hero a{color:var(--pr)}
+.login{width:100%;max-width:400px;text-align:left;margin:0;animation:up .35s}.login h3{font-size:19px;margin-bottom:8px}
+.wb{background:rgba(255,255,255,.2);margin-top:14px;color:#fff}.hint{color:#fff;opacity:.85;font-size:13px;margin-top:12px}
+.spin{width:30px;height:30px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;margin-top:18px}@keyframes sp{to{transform:rotate(360deg)}}
+.clog{height:clamp(260px,calc(100dvh - 430px),70vh);overflow:auto;border:1px solid var(--bd);border-radius:14px;padding:8px 10px;background:var(--bg)}
+.msg{max-width:88%;margin:8px 0;padding:8px 12px;border-radius:16px 16px 16px 4px;background:var(--card);border:1px solid var(--bd)}
+.msg.me{margin-left:auto;border:0;border-radius:16px 16px 4px 16px;background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff}
+.msg.me .mu{color:rgba(255,255,255,.8)}.msg.me .mu b{color:#fff!important}.msg.me .mt a{color:#fff;text-decoration:underline}.msg.me .er{color:#ffe0e0}
+.mt{white-space:pre-wrap;word-break:break-word}.mt a{color:var(--pr);word-break:break-all}
+.lk{display:flex;gap:10px;align-items:center;margin-top:6px;padding:9px;border:1px solid var(--bd);border-radius:12px;text-decoration:none;color:var(--tx);background:var(--bg)}.msg.me .lk .mu{color:var(--mu)}
+.news{border-left:4px solid var(--pr)}
+.btn{display:inline-block;background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;border-radius:12px;padding:9px 16px;text-decoration:none;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin:10px -2px;padding:2px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chips button{padding:5px 13px;font-size:13px;min-height:34px;border-radius:99px;white-space:nowrap;flex:none}
+#toasts{position:fixed;top:calc(64px + env(safe-area-inset-top,0px));right:12px;left:12px;margin-left:auto;z-index:300;display:flex;flex-direction:column;gap:8px;max-width:340px}
+.toast{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-left:4px solid var(--pr);border-radius:12px;padding:10px 12px;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.28);animation:up .25s}
+</style></head><body><div id="app"><div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing</p><div class="spin"></div></div></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
 const DEFAULT_CFG={apiKey:"AIzaSyCtnuikXk-GEF7LlJxX66wPhZe33GVGy6k",authDomain:"dmcourse-a5f3a.firebaseapp.com",projectId:"dmcourse-a5f3a",storageBucket:"dmcourse-a5f3a.firebasestorage.app",messagingSenderId:"815510811352",appId:"1:815510811352:web:f188c475216773da735dad",measurementId:"G-SX75V2RMPN"};
@@ -71,7 +119,7 @@ async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').valu
 function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render()}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
 function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
- c('materials','mats');c('exams','exams');c('syllabus','syl');
+ c('materials','mats');c('exams','exams');c('syllabus','syl');chatSub();
  if(T){c('progress','prog');c('submissions','subs');c('users','users');c('examKeys','keysL')}else{U.push(db.doc('users/'+me).onSnapshot(d=>{const x=d.data();if(x){Object.assign(S.user,{name:x.name,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes});if(!S.taking)render()}}));c('progress','prog',db.collection('progress').where('uid','==',me));c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
 function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.syl=[];S.prog=[];S.pstu=null;S.editStu=null;S.pf='all';S.sent=[];S.results=[];auth.signOut();render()}
 function stuView(){const st=S.users.filter(u=>u.role=='student'),ed=S.editStu&&st.find(u=>u.id==S.editStu),f=(k,l,t)=>`<div><span class="mu">${l}</span><input id="sd_${k}" type="${t||'text'}" value="${esc(ed[k])}"></div>`;
@@ -103,6 +151,77 @@ async function addStudent(){const g=k=>$('#ns_'+k).value.trim(),n=g('name'),u=g(
  const d={};['phone','email','batch','joined','notes'].forEach(k=>{if(g(k))d[k]=g(k)});
  if(Object.keys(d).length)try{await db.doc('users/'+uid).update(d)}catch(e){alert('Student created, but extra details could not be saved ('+(e.message||e.code)+'). Use “Details” to add them.')}
  closeStu()}
+
+/* ---------- discussion room, news & notifications ---------- */
+const BASE_TOPICS=['General','SEO','Social Media','Ads & PPC','Content Marketing','Email Marketing','Analytics'];
+const cb=()=>S.unread>0&&S.tab!='chat'?`<i class="nb">${S.unread}</i>`:'';
+const fmt=t=>new Date(t).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const URLRE=/https?:\/\/[^\s<>"']+/gi,TRIM=/[.,;:!?)\]]+$/;
+function urls(t){const o=[];for(const m of String(t||'').matchAll(URLRE)){const s=m[0].replace(TRIM,'');try{if(/^https?:$/.test(new URL(s).protocol))o.push(s)}catch(e){}}return[...new Set(o)]}
+function linkify(t){t=String(t||'');let o='',last=0;for(const m of t.matchAll(URLRE)){const s=m[0].replace(TRIM,'');o+=esc(t.slice(last,m.index))+`<a href="${esc(s)}" target="_blank" rel="noopener noreferrer">${esc(s)}</a>`;last=m.index+s.length}return o+esc(t.slice(last))}
+function plat(u){let h='';try{h=new URL(u).hostname.replace(/^www\./,'').replace(/^m\./,'')}catch(e){}
+ if(/(^|\.)instagram\.com$/.test(h))return{i:'📸',n:'Instagram post'};
+ if(/(^|\.)(facebook\.com|fb\.com|fb\.watch)$/.test(h))return{i:'👍',n:'Facebook post'};
+ if(/(^|\.)(youtube\.com|youtu\.be)$/.test(h))return{i:'▶️',n:'YouTube'};
+ if(/(^|\.)(x\.com|twitter\.com)$/.test(h))return{i:'🐦',n:'X / Twitter'};
+ if(/(^|\.)linkedin\.com$/.test(h))return{i:'💼',n:'LinkedIn'};
+ return{i:'🔗',n:h||'Link'}}
+const linkCard=u=>{const p=plat(u);return`<a class="lk" href="${esc(u)}" target="_blank" rel="noopener noreferrer"><span style="font-size:22px">${p.i}</span><span style="flex:1;min-width:0"><b>${esc(p.n)}</b><div class="mu" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(u)}</div></span><span class="mu">Open ↗</span></a>`};
+function topics(){const seen=new Set(),o=[];[...BASE_TOPICS,...(S.chat||[]).filter(m=>m.type!='news').map(m=>m.topic||'General'),...(S.xt||[])].forEach(t=>{const k=t.toLowerCase();if(!seen.has(k)){seen.add(k);o.push(t)}});return o}
+function mkModal(id,html){const old=$('#'+id);if(old)old.remove();const d=document.createElement('div');d.id=id;d.className='modal x';d.innerHTML=html;d.addEventListener('mousedown',e=>{if(e.target===d)d.remove()});document.body.appendChild(d);return d}
+const closeM=id=>{const m=$('#'+id);if(m)m.remove()};
+document.addEventListener('keydown',e=>{if(e.key=='Escape')document.querySelectorAll('.modal.x').forEach(m=>m.remove())});
+function toast(t,b,fn){let w=$('#toasts');if(!w){w=document.createElement('div');w.id='toasts';document.body.appendChild(w)}const e=document.createElement('div');e.className='toast';e.innerHTML=`<b>${esc(t)}</b><div class="mu">${esc(b)}</div>`;e.onclick=()=>{e.remove();if(fn)fn()};w.appendChild(e);setTimeout(()=>e.remove(),7000)}
+function osNotify(t,b){if(!window.Notification||Notification.permission!='granted'||!document.hidden)return;const o={body:b,icon:'icon-192.png',badge:'icon-192.png',tag:'lms'};
+ if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration)navigator.serviceWorker.getRegistration().then(r=>r?r.showNotification(t,o):new Notification(t,o)).catch(()=>{});else try{new Notification(t,o)}catch(e){}}
+function askNotif(){if(window.Notification)Notification.requestPermission().then(()=>render())}
+const seenKey=()=>'lms_seen_'+S.user.id;
+function getSeen(){try{return+localStorage.getItem(seenKey())||Date.now()-7*864e5}catch(e){return Date.now()-7*864e5}}
+function markSeen(){if(!S.user||!S.chat)return;const t=Math.max(getSeen(),...S.chat.filter(m=>m.type=='news').map(m=>m.ts||0));try{localStorage.setItem(seenKey(),t)}catch(e){}}
+function chatSub(){S.chat=[];S.chatInit=false;S.unread=0;S.tun={};S.cerr='';U.push(db.collection('chat').orderBy('ts').limitToLast(400).onSnapshot(chatSnap,e=>{S.cerr=e.code||'error';if(!S.taking)render()}))}
+function chatSnap(x){const me=S.user.id,first=!S.chatInit;S.chat=x.docs.map(d=>({id:d.id,...d.data()}));S.chatInit=true;S.cerr='';
+ if(first){const seen=getSeen(),nn=S.chat.filter(m=>m.type=='news'&&m.uid!=me&&m.ts>seen);if(nn.length)showNews(nn)}
+ else x.docChanges().forEach(ch=>{if(ch.type!='added'||ch.doc.metadata.hasPendingWrites)return;const m={id:ch.doc.id,...ch.doc.data()};if(m.uid!=me)incoming(m)});
+ if(!S.taking)render()}
+function incoming(m){
+ if(m.type=='news'){showNews([m]);osNotify('📢 '+m.title,m.text);return}
+ if(S.taking)return;const tp=m.topic||'General';
+ if(S.tab=='chat'&&tp==S.ct)return;
+ S.unread=(S.unread||0)+1;S.tun=S.tun||{};S.tun[tp]=(S.tun[tp]||0)+1;
+ toast('💬 '+m.name+' · '+tp,m.text,()=>{S.tab='chat';S.ct=tp;S.cflt='';S.cforce=1;render()});osNotify('💬 '+m.name+' · '+tp,m.text)}
+function showNews(list){if(!$('#newsPop'))S.npop=[];S.npop=(S.npop||[]).concat(list);
+ mkModal('newsPop',`<div class="box"><h3>📢 News from your teacher</h3>${S.npop.map(m=>`<div class="card news" style="margin:10px 0"><div class="mu">${esc(m.name)} · ${fmt(m.ts)}</div><b>${esc(m.title)}</b><div class="mt">${linkify(m.text)}</div>${urls(m.text).map(linkCard).join('')}</div>`).join('')}<div class="row" style="justify-content:flex-end"><button class="g" onclick="dismissNews(0)">Got it</button><button onclick="dismissNews(1)">💬 Open discussion</button></div></div>`)}
+function dismissNews(go){S.npop=[];closeM('newsPop');markSeen();if(go){S.tab='chat';S.cforce=1;render()}}
+function preRender(){const el=$('#cin');S.cfoc=!!el&&document.activeElement===el;S.csel=el?el.selectionStart:0;if(el)S.cd=el.value;const l=$('#chatlog');S.cstick=!l||l.scrollHeight-l.scrollTop-l.clientHeight<80;S.cst=l?l.scrollTop:0;
+ if(S.user&&S.tab=='chat'){if(S.lt!='chat')S.cforce=1;S.unread=0;if(S.tun)delete S.tun[S.ct||'General'];markSeen()}S.lt=S.tab}
+function postRender(){try{if(navigator.setAppBadge){S.user&&S.unread>0?navigator.setAppBadge(S.unread):navigator.clearAppBadge()}}catch(e){}const l=$('#chatlog');if(l){l.scrollTop=(S.cstick||S.cforce)?l.scrollHeight:S.cst;S.cforce=0}const el=$('#cin');if(el&&S.cfoc){el.focus();try{el.setSelectionRange(S.csel,S.csel)}catch(e){}}}
+function msgHTML(m,me,T,showTopic){const mine=m.uid==me;return`<div class="msg ${mine?'me':''}"><div class="mu"><b style="color:var(--tx)">${esc(m.name)}</b> ${m.role=='teacher'?'<span class="tag">teacher</span> ':''}· ${fmt(m.ts)}${showTopic?` · <span class="tag">${esc(m.topic||'General')}</span>`:''}${mine||T?` · <a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:''}</div><div class="mt">${linkify(m.text)}</div>${urls(m.text).map(linkCard).join('')}</div>`}
+function chatView(T){const me=S.user.id;S.ct=S.ct||'General';const all=S.chat||[],news=all.filter(m=>m.type=='news').sort((a,b)=>b.ts-a.ts),shown=S.allNews?news:news.slice(0,2),lk=S.cflt=='links',
+ msgs=lk?all.filter(m=>m.type!='news'&&urls(m.text).length):all.filter(m=>m.type!='news'&&(m.topic||'General')==S.ct),tl=topics();
+ return`<div class="card"><div class="row" style="justify-content:space-between"><b>💬 Discussion room</b><span class="row" style="flex:0 0 auto">${window.Notification&&Notification.permission=='default'?'<button class="g" onclick="askNotif()">🔔 Enable alerts</button>':''}${T?'<button onclick="openNews()">📢 Post news</button>':''}</span></div>
+ ${S.cerr?`<p class="er">Chat could not load (${esc(S.cerr)}). Add Firestore rules for the “chat” collection – see the instructions.</p>`:''}
+ ${shown.map(m=>`<div class="card news" style="margin:10px 0 0"><div class="mu">📢 News · ${esc(m.name)} · ${fmt(m.ts)}${T?` · <a href="#" onclick="waShow(S.chat.find(x=>x.id=='${m.id}'));return false">WhatsApp</a> · <a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:''}</div><b>${esc(m.title)}</b><div class="mt">${linkify(m.text)}</div>${urls(m.text).map(linkCard).join('')}</div>`).join('')}
+ ${news.length>2?`<p class="mu"><a href="#" onclick="S.allNews=!S.allNews;render();return false">${S.allNews?'Show fewer news':'Show all '+news.length+' news posts'}</a></p>`:''}
+ <div class="chips">${tl.map((t,i)=>`<button class="${!lk&&t==S.ct?'':'g'}" onclick="pickTopic(${i})">${esc(t)}${S.tun&&S.tun[t]?` <span class="tag" style="background:var(--er);color:#fff">${S.tun[t]}</span>`:''}</button>`).join('')}<button class="g" onclick="newTopic()">＋ Topic</button><button class="${lk?'':'g'}" onclick="S.cflt=S.cflt=='links'?'':'links';S.cforce=1;render()">🔗 Shared links</button></div>
+ <div class="clog" id="chatlog">${msgs.length?msgs.map(m=>msgHTML(m,me,T,lk)).join(''):`<p class="mu" style="text-align:center;margin-top:30px">${lk?'No links shared yet. Paste an Instagram or Facebook post link in any topic.':'No messages in “'+esc(S.ct)+'” yet. Start the discussion!'}</p>`}</div>
+ <p class="mu" style="margin:8px 0 0">Posting in <b>${esc(S.ct)}</b> · paste Instagram / Facebook post links to share them for everyone</p>
+ <div class="row" style="align-items:flex-end"><textarea id="cin" rows="2" placeholder="Write a message or paste a link…" oninput="S.cd=this.value" onkeydown="chatKey(event)">${esc(S.cd)}</textarea><button onclick="chatSend()">Send</button></div></div>`}
+function pickTopic(i){S.ct=topics()[i];S.cflt='';S.cforce=1;render()}
+function newTopic(){const t=(prompt('New topic name')||'').trim().slice(0,30);if(!t)return;S.xt=[...(S.xt||[]),t];S.ct=t;S.cflt='';S.cforce=1;render()}
+function chatKey(e){if(e.key=='Enter'&&!e.shiftKey){e.preventDefault();chatSend()}}
+async function chatSend(){const el=$('#cin'),t=(el?el.value:S.cd||'').trim();if(!t)return;if(t.length>2000)return alert('Message too long (max 2000 characters)');
+ S.cd='';if(el){el.value='';el.focus()}S.cforce=1;
+ try{await db.collection('chat').add({type:'msg',topic:S.ct||'General',text:t,uid:S.user.id,name:S.user.name,role:S.user.role,ts:Date.now()})}
+ catch(e){S.cd=t;alert('Could not send: '+(e.message||e.code)+'\nCheck the Firestore rules for the “chat” collection.');render()}}
+async function chatDel(id){if(!confirm('Delete this post?'))return;try{await db.doc('chat/'+id).delete()}catch(e){alert('Could not delete: '+(e.message||e.code))}}
+function openNews(){mkModal('newsForm',`<div class="box"><h3>📢 Post news</h3><p class="mu">Students get a pop-up the moment they are online (and a browser alert if they enabled it). Afterwards you can send it on WhatsApp too.</p><span class="mu">Title *</span><input id="nt" placeholder="e.g. Class moved to 6 PM"><span class="mu">Message *</span><textarea id="nb" rows="4" placeholder="Details… (links are allowed)"></textarea><p class="er" id="nm2"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('newsForm')">Cancel</button><button id="nbtn" onclick="postNews()">Post news</button></div></div>`);$('#nt').focus()}
+async function postNews(){const t=$('#nt').value.trim(),b=$('#nb').value.trim(),m=$('#nm2');if(!t||!b)return m.textContent='Enter a title and a message';$('#nbtn').disabled=true;
+ const o={type:'news',topic:'News',title:t.slice(0,120),text:b.slice(0,2000),uid:S.user.id,name:S.user.name,role:S.user.role,ts:Date.now()};
+ try{await db.collection('chat').add(o);closeM('newsForm');S.tab='chat';S.cforce=1;render();waShow(o)}
+ catch(e){m.textContent='Could not post: '+(e.message||e.code)+' (check Firestore rules for “chat”)';$('#nbtn').disabled=false}}
+function waShow(o){if(!o)return;const txt=`📢 *${o.title}*\n${o.text}\n\n— Explore Learning`,enc=encodeURIComponent(txt),stu=(S.users||[]).filter(u=>u.role=='student'),
+ num=p=>{let d=String(p||'').replace(/\D/g,'').replace(/^0+/,'');if(d.length==10)d='91'+d;return d};
+ mkModal('waModal',`<div class="box"><h3>Send on WhatsApp</h3><p class="mu">WhatsApp can’t be sent automatically from a web page, so tap a button and press Send in WhatsApp. Students already get an in-app pop-up.</p><p><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${enc}">Share to a WhatsApp group / contact</a></p><b>Or message each student</b><div style="overflow-x:auto"><table>${stu.map(u=>{const n=num(u.phone);return`<tr><td>${esc(u.name)}</td><td>${n?`<a class="btn" style="padding:4px 10px" target="_blank" rel="noopener" href="https://wa.me/${n}?text=${enc}">Send</a>`:'<span class="mu">no phone saved</span>'}</td></tr>`}).join('')||'<tr><td class="mu">No students yet</td></tr>'}</table></div><p class="mu">10-digit numbers are treated as Indian (+91). Add the country code in the student’s Details for other countries.</p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('waModal')">Done</button></div></div>`)}
 async function upStu(inp){const f=inp.files[0];if(!f)return;const st=$('#ust');st.textContent='Reading…';
  try{const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),stus=S.users.filter(u=>u.role=='student'),b=db.batch();let ok=0;const miss=[];
   rows.forEach(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();const un=(g.username||'').toLowerCase(),nm=(g.name||'').toLowerCase(),u=stus.find(x=>un&&x.username==un)||stus.find(x=>nm&&x.name.toLowerCase()==nm);
@@ -197,26 +316,29 @@ async function submitExam(){const{e,ans}=S.taking,un=ans.filter(a=>a===-1||a==='
 
 const _h=async p=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('lms::'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return p}};
 const CK=['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'];
-function cfgView(){return`<div class="card login" style="max-width:520px;margin-top:6vh"><h2>Firebase setup</h2><p class="mu">One-time setup. Saved permanently in this browser.</p>
+function cfgView(){return`<div class="hero"><div class="logo big">📣</div><h1>Firebase setup</h1><p class="sub">One-time setup · saved in this browser</p><div class="card login" style="max-width:520px">
 <textarea id="cs" rows="4" placeholder="Optional: paste the whole firebaseConfig snippet here to auto-fill the boxes" oninput="fillCfg(this.value)"></textarea>
 ${CK.map(k=>`<input id="c_${k}" placeholder="${k}${/apiKey|projectId|appId/.test(k)?' (required)':' (optional)'}">`).join('')}
-<p class="er" id="cm">${esc(S.msg)}</p><button style="width:100%" onclick="saveCfg()">Save &amp; connect</button></div>`}
+<p class="er" id="cm">${esc(S.msg)}</p><button style="width:100%" onclick="saveCfg()">Save &amp; connect</button></div></div>`}
 function fillCfg(t){CK.forEach(k=>{const m=t.match(new RegExp(k+'\\s*:\\s*["\']([^"\']+)["\']'));if(m)$('#c_'+k).value=m[1]})}
 function resetCfg(){if(!confirm('Remove the saved Firebase configuration from this browser?'))return;try{localStorage.removeItem('lms_fb')}catch(e){}db=null;firebaseConfig=null;subbed=false;S.user=null;S.msg='';render()}
 function setMode(m){S.mode=m;S.msg='';render()}
 const amsg=m=>$('#am').textContent=m;
-function authView(){const su=S.mode=='signup';return`<div class="card login"><h2>Explore Learning</h2><p class="mu">Digital Marketing Course · LMS</p>
-${su?'<input id="n" placeholder="Full name">':''}<input id="u" placeholder="Username or email" autocapitalize="none"><input id="p" type="password" placeholder="Password" onkeydown="event.key=='Enter'&&authGo()">${su?'<input id="p2" type="password" placeholder="Confirm password"><select id="role"><option value="student">I am a student</option><option value="teacher">I am a teacher</option></select><p class="mu">Password: 6+ characters.</p>':''}
+function authView(){const su=S.mode=='signup',ios=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!isStandalone();return`<div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing Course</p>
+<div class="card login"><h3>${su?'Create your account':'Welcome back 👋'}</h3>
+${su?'<input id="n" placeholder="Full name">':''}<input id="u" placeholder="Username or email" autocapitalize="none" autocomplete="username"><input id="p" type="password" placeholder="Password" onkeydown="event.key=='Enter'&&authGo()">${su?'<input id="p2" type="password" placeholder="Confirm password"><select id="role"><option value="student">I am a student</option><option value="teacher">I am a teacher</option></select><p class="mu">Password: 6+ characters.</p>':''}
 <p class="er" id="am">${esc(S.msg)}</p><button style="width:100%" onclick="authGo()">${su?'Create account':'Login'}</button>
-<p class="mu" style="text-align:center">${su?'Have an account? <a href="#" onclick="setMode(\'login\');return false">Login</a>':'New here? <a href="#" onclick="setMode(\'signup\');return false">Sign up</a>'} · <a href="#" onclick="resetCfg();return false">Firebase config</a></p></div>`}
+<p class="mu" style="text-align:center">${su?'Have an account? <a href="#" onclick="setMode(\'login\');return false">Login</a>':'New here? <a href="#" onclick="setMode(\'signup\');return false">Sign up</a>'} · <a href="#" onclick="resetCfg();return false">Firebase config</a></p></div>
+<button class="wb inst" onclick="installApp()" ${DIP?'':'hidden'}>⬇ Install app</button>${ios?'<p class="hint">Install on iPhone: Share ⎙ → Add to Home Screen</p>':''}</div>`}
 const authGo=()=>S.mode=='signup'?signup():login();
-function render(){const a=$('#app');
+function render(){const a=$('#app');preRender();
  if(!db){a.innerHTML=cfgView();return}
  if(!S.user){a.innerHTML=authView();return}
- const T=S.user.role=='teacher',tabs=T?[['exams','Exams'],['ebooks','E-books'],['videos','Videos'],['syllabus','Syllabus'],['progress','Course Progress'],['students','Students']]:[['ebooks','E-books'],['videos','Videos'],['exams','Exams & Results'],['progress','Course Progress']];
- a.innerHTML=`<header><b>📣 Explore Learning – Digital Marketing</b><span>${esc(S.user.name)} <span class="tag">${S.user.role}</span> <button class="g" onclick="logout()">Logout</button></span></header><main>
- ${S.taking?'':`<div class="tabs">${tabs.map(([k,l])=>`<button class="${S.tab==k?'on':''}" onclick="S.tab='${k}';S.open=null;S.mat=null;render()">${l}</button>`).join('')}</div>`}
- ${S.taking?takeView():S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`}
+ const T=S.user.role=='teacher',tabs=T?[['exams','📝','Exams','Exams'],['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['syllabus','🗂️','Syllabus','Syllabus'],['progress','📈','Progress','Course Progress'],['students','👥','Students','Students'],['chat','💬','Chat','Discussion']]:[['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['exams','📝','Exams','Exams & Results'],['progress','📈','Progress','Course Progress'],['chat','💬','Chat','Discussion']],cur=tabs.find(t=>t[0]==S.tab)||tabs[0],nm=String(S.user.name||'?').trim();
+ a.innerHTML=`<header class="hd"><div class="brand"><span class="logo">📣</span><div><b>Explore Learning</b><small>Digital Marketing</small></div></div><div class="hr"><button class="ib inst" onclick="installApp()" ${DIP?'':'hidden'}>⬇ Install</button><span class="who"><b>${esc(nm)}</b><small>${esc(S.user.role)}</small></span><span class="av">${esc(nm[0].toUpperCase())}</span><button class="ib" onclick="logout()" title="Logout" aria-label="Logout">⏻</button></div></header>
+ ${S.taking?'':`<nav class="nav">${tabs.map(([k,ic,l])=>`<button class="${S.tab==k?'on':''}" onclick="S.tab='${k}';S.open=null;S.mat=null;render();scrollTo(0,0)"><span class="ic">${ic}</span>${l}${k=='chat'?cb():''}</button>`).join('')}</nav>`}
+ <main>${S.taking||S.tab=='chat'?'':`<h2 class="pt">${cur[1]} ${cur[3]}</h2>`}
+ ${S.taking?takeView():S.tab=='chat'?chatView(T):S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`;postRender()}
 /* ---------- materials ---------- */
 function emb(u){let m;if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return'https://drive.google.com/file/d/'+m[1]+'/preview';if(m=u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/))return'https://www.youtube.com/embed/'+m[1];
  if(/facebook\.com|fb\.watch/.test(u))return'https://www.facebook.com/plugins/video.php?show_text=false&href='+encodeURIComponent(u);
@@ -259,5 +381,14 @@ function takeView(){const{e,i,ans}=S.taking,q=e.qs[i],last=i==e.qs.length-1;
  <div class="row" style="margin-top:12px"><button class="g" ${i?'':'disabled'} onclick="go(-1)">← Previous</button>${last?'<button onclick="submitExam()">Submit exam</button>':'<button onclick="go(1)">Next →</button>'}</div>
  <p class="mu">${ans.filter(a=>a!==-1&&a!=='').length} of ${e.qs.length} answered</p></div>`}
 function go(d){S.taking.i+=d;render()}
+/* ---------- installable app (PWA) ---------- */
+let DIP=null;const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const showInst=()=>document.querySelectorAll('.inst').forEach(b=>b.hidden=!DIP);
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();DIP=e;showInst()});
+addEventListener('appinstalled',()=>{DIP=null;showInst();toast('✅ App installed','Open it from your home screen')});
+async function installApp(){if(!DIP)return;DIP.prompt();try{await DIP.userChoice}catch(e){}DIP=null;showInst()}
+addEventListener('offline',()=>toast('You are offline','Reconnect to send or load new data'));
+addEventListener('online',()=>toast('Back online','Syncing…'));
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 init();
 </script></body></html>
