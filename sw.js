@@ -1,5 +1,5 @@
 /* Explore Learning – service worker: offline app shell + notification click */
-const V='lms-v1',SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png'];
+const V='lms-v2',SHELL=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>Promise.all(SHELL.map(u=>c.add(u).catch(()=>{})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 const cdn=u=>(u.hostname==='www.gstatic.com'&&u.pathname.startsWith('/firebasejs/'))||u.hostname==='cdnjs.cloudflare.com';
