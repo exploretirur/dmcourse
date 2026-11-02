@@ -90,6 +90,10 @@ table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1p
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;cursor:pointer;background:var(--bd);display:block}
 .mimg{max-width:100%;max-height:280px;border-radius:12px;display:block;margin-top:6px;cursor:pointer;background:var(--bd)}
 .mvid{width:100%;max-height:300px;border-radius:12px;margin-top:6px;background:#000;display:block}
+.opt.sel{border-color:var(--pr);background:color-mix(in srgb,var(--pr) 12%,var(--card))}
+.opt.good{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
+.opt.bad{border-color:var(--er);background:color-mix(in srgb,var(--er) 12%,var(--card))}
+@media(max-width:760px){.nav{overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{flex:1 0 auto;min-width:58px}}
 </style></head><body><div id="app"><div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing</p><div class="spin"></div></div></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
@@ -127,9 +131,9 @@ async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').valu
 function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render();if(u.mustChange)setTimeout(forcePw,400)}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
 function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
- c('materials','mats');c('exams','exams');c('syllabus','syl');chatSub();
+ c('materials','mats');c('exams','exams');c('syllabus','syl');chatSub();mockSub();
  if(T){c('progress','prog');c('submissions','subs');c('users','users');c('examKeys','keysL')}else{U.push(db.doc('users/'+me).onSnapshot(d=>{const x=d.data();if(x){Object.assign(S.user,{name:x.name,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes});if(!S.taking)render()}}));c('progress','prog',db.collection('progress').where('uid','==',me));c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
-function logout(){unsub();S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.syl=[];S.prog=[];S.pstu=null;S.editStu=null;S.pf='all';S.sent=[];S.results=[];auth.signOut();render()}
+function logout(){unsub();S.mt=null;S.mm=null;S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.syl=[];S.prog=[];S.pstu=null;S.editStu=null;S.pf='all';S.sent=[];S.results=[];auth.signOut();render()}
 function stuView(){const st=S.users.filter(u=>u.role=='student'),ed=S.editStu&&st.find(u=>u.id==S.editStu),f=(k,l,t)=>`<div><span class="mu">${l}</span><input id="sd_${k}" type="${t||'text'}" value="${esc(ed[k])}"></div>`;
  return`${ed?`<div class="card"><b>Student details – ${esc(ed.name)}</b><div class="det">${f('phone','Phone','tel')}${f('email','Email','email')}${f('batch','Batch / Class')}${f('joined','Joining date','date')}</div><span class="mu">Notes</span><textarea id="sd_notes" rows="2">${esc(ed.notes)}</textarea><p><button onclick="saveStu('${ed.id}')">Save details</button> <button class="g" onclick="S.editStu=null;render()">Cancel</button> <span class="er" id="sdm"></span></p></div>`:''}
  <div class="card"><b>Upload student details</b><p class="mu">Upload an Excel/CSV with columns: <code>Username</code> (or <code>Name</code>), Phone, Email, Batch, Joined, Notes. Details are matched to students who have signed up.</p><input type="file" accept=".xlsx,.xls,.csv" onchange="upStu(this)"><span class="mu" id="ust"></span></div>
@@ -313,6 +317,62 @@ async function doReset(id){const u=S.users.find(x=>x.id==id),pw=$('#rs_pw').valu
   const txt=encodeURIComponent(`Hi ${u.name}, your temporary password for Explore Learning is: ${pw}\nUsername: ${u.username}\nPlease change it after you log in.`);
   $('#rsModal .box').innerHTML=`<h3>✅ Password set</h3><p class="mu">Temporary password for <b style="color:var(--tx)">${esc(u.name)}</b>:</p><p style="font-size:24px;font-weight:700;letter-spacing:.06em;margin:6px 0">${esc(pw)}</p><p class="mu">Share it privately. The student must choose a new password at next login.</p><div class="row">${d?`<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${d}?text=${txt}">Send on WhatsApp</a>`:''}<button class="g" onclick="closeM('rsModal')">Done</button></div>`}
  catch(e){b.disabled=false;const c=(e&&e.code)||'';m.textContent=/not-found/.test(c)?'The password-reset service is not deployed yet (see setup steps).':(e.message||c||'Failed')}}
+/* ---------- mock tests (module-wise MCQ practice) ---------- */
+const mockOf=mid=>(S.mocks||[]).find(x=>x.id==mid);
+const modName=mid=>{const t=(S.syl||[]).find(x=>x.id==mid);return t?t.name:(mockOf(mid)||{}).name||'Module'};
+function mockSub(){S.mocks=[];S.matt=[];S.merr='';const T=S.user.role=='teacher',me=S.user.id,er=e=>{S.merr=e.code||'error';if(!S.taking)render()};
+ U.push(db.collection('mocks').onSnapshot(x=>{S.mocks=x.docs.map(d=>({id:d.id,...d.data()}));S.merr='';if(!S.taking)render()},er));
+ U.push((T?db.collection('mockAttempts'):db.collection('mockAttempts').where('uid','==',me)).onSnapshot(x=>{S.matt=x.docs.map(d=>({id:d.id,...d.data()}));if(!S.taking)render()},er))}
+const saveBank=(mid,qs)=>db.doc('mocks/'+mid).set({moduleId:mid,name:modName(mid),qs,ts:Date.now()});
+async function mockUpload(mid,inp){const f=inp.files[0];inp.value='';if(!f)return;
+ try{const raw=await readFile(f),bank=(mockOf(mid)||{}).qs||[],have=new Set(bank.map(q=>q.q.trim().toLowerCase())),add=[];let bad=0,dup=0;
+  raw.forEach(q=>{if(q.type!='mcq'||q.ai<0||q.ai>=q.opts.length){bad++;return}const k=q.q.trim().toLowerCase();if(have.has(k)){dup++;return}have.add(k);add.push({id:uid(),q:q.q.slice(0,500),opts:q.opts.slice(0,5).map(o=>o.slice(0,200)),ai:q.ai,exp:String(q.exp||'').slice(0,500)})});
+  if(!add.length)throw Error('No usable questions found. Each needs options A–D and an answer.'+(dup?' ('+dup+' duplicates skipped)':''));
+  if(bank.length+add.length>1000)throw Error('A module can hold up to 1000 questions');
+  await saveBank(mid,[...bank,...add]);toast('✅ '+add.length+' questions added to '+modName(mid),(bad?bad+' skipped (no options or answer). ':'')+(dup?dup+' duplicates skipped.':''))}
+ catch(e){alert('Upload failed: '+(e.message||e.code||e))}}
+function openMq(mid){mkModal('mqBox',`<div class="box"><h3>Add question</h3><p class="mu">Module: <b style="color:var(--tx)">${esc(modName(mid))}</b></p><span class="mu">Question *</span><textarea id="mq_q" rows="2"></textarea>${['A','B','C','D'].map(l=>`<span class="mu">Option ${l}${l<'C'?' *':''}</span><input id="mq_${l}">`).join('')}<span class="mu">Correct answer *</span><select id="mq_c"><option>A</option><option>B</option><option>C</option><option>D</option></select><span class="mu">Explanation (optional)</span><textarea id="mq_e" rows="2" placeholder="Shown to students after they answer"></textarea><p class="er" id="mqm"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('mqBox')">Cancel</button><button onclick="saveMq('${mid}')">Save question</button></div></div>`)}
+async function saveMq(mid){const q=$('#mq_q').value.trim(),m=$('#mqm'),L=['A','B','C','D'],c=L.indexOf($('#mq_c').value),raw=L.map(l=>$('#mq_'+l).value.trim());
+ if(!q)return m.textContent='Enter the question';if(raw.filter(Boolean).length<2)return m.textContent='Enter at least two options';if(!raw[c])return m.textContent='The correct answer must have an option text';
+ const opts=raw.filter(Boolean),ai=raw.slice(0,c).filter(Boolean).length,bank=(mockOf(mid)||{}).qs||[];
+ try{await saveBank(mid,[...bank,{id:uid(),q:q.slice(0,500),opts:opts.map(o=>o.slice(0,200)),ai,exp:$('#mq_e').value.trim().slice(0,500)}]);closeM('mqBox')}catch(e){m.textContent='Could not save: '+(e.message||e.code)}}
+async function delMq(mid,qid){if(!confirm('Delete this question?'))return;try{await saveBank(mid,((mockOf(mid)||{}).qs||[]).filter(q=>q.id!=qid))}catch(e){alert('Could not delete: '+(e.message||e.code))}}
+async function clearBank(mid){if(!confirm('Delete ALL questions of '+modName(mid)+'?'))return;try{await db.doc('mocks/'+mid).delete();S.mm=null}catch(e){alert('Could not delete: '+(e.message||e.code))}}
+const pct=(a,b)=>b?Math.round(a*100/b):0;
+function mockView(T){if(S.merr)return`<div class="card"><p class="er">Mock tests could not load (${esc(S.merr)}). Add Firestore rules for “mocks” and “mockAttempts” – see the setup steps.</p></div>`;
+ return T?mockTeacher():S.mt?mtView():mockStudent()}
+function mockTeacher(){const mods=sylList(),att=(S.matt||[]).slice().sort((a,b)=>b.ts-a.ts),fil=S.mfil||'';
+ const list=att.filter(a=>!fil||a.moduleId==fil).slice(0,100);
+ return`<div class="card"><b>Mock tests</b><p class="mu">Upload multiple-choice questions for each module (a topic from your Syllabus). Students practise with instant feedback and can retake as often as they like.</p><details><summary class="mu">Expected file format</summary><p class="mu">Word/PDF: <code>1. Question text</code>, options <code>A) …</code> to <code>D) …</code>, <code>Answer: B</code> and optionally <code>Explanation: …</code>.<br>Excel/CSV columns: Question, A, B, C, D, Answer, Explanation (optional). Uploading again adds to the module’s existing questions.</p></details></div>
+ ${mods.length?mods.map(t=>{const b=(mockOf(t.id)||{}).qs||[],a=att.filter(x=>x.moduleId==t.id),open=S.mm==t.id;
+  return`<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(t.name)}</b><span class="tag" style="flex:none">${b.length} questions</span></div><p class="mu" style="margin:4px 0 10px">${a.length} attempts${a.length?' · average '+pct(a.reduce((s,x)=>s+x.score,0),a.reduce((s,x)=>s+x.total,0))+'%':''}</p>
+  <div class="row"><label class="btn" style="cursor:pointer;text-align:center">⬆ Upload file<input type="file" hidden accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="mockUpload('${t.id}',this)"></label><button class="g" onclick="openMq('${t.id}')">＋ Add question</button>${b.length?`<button class="g" onclick="S.mm=${open?'null':`'${t.id}'`};render()">${open?'Hide':'View'} questions</button>`:''}</div>
+  ${open?`${b.map((q,i)=>`<div class="item" style="cursor:default"><b>${i+1}.</b> ${esc(q.q)} <a href="#" class="er" onclick="delMq('${t.id}','${q.id}');return false">delete</a>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}${q.exp?`<br><span class="mu">💡 ${esc(q.exp)}</span>`:''}</div>`).join('')}<p><a href="#" class="er" onclick="clearBank('${t.id}');return false">Delete all questions in this module</a></p>`:''}</div>`}).join(''):'<div class="card"><p class="mu">No modules yet. Create topics in the <b>Syllabus</b> tab first – each topic becomes a module here.</p></div>'}
+ <div class="card"><div class="row" style="justify-content:space-between"><b>Student attempts</b><select id="mf" style="max-width:220px" onchange="S.mfil=this.value;render()"><option value="">All modules</option>${mods.map(t=>`<option value="${t.id}" ${fil==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
+ <div style="overflow-x:auto"><table><tr><th>Student</th><th>Module</th><th>Score</th><th>Date</th></tr>${list.map(a=>`<tr><td>${esc(a.name)} <span class="mu">${esc(handle(unOf(a.uid)||a.un))}</span></td><td>${esc(modName(a.moduleId)||a.moduleName)}</td><td><span class="tag">${a.score}/${a.total} · ${pct(a.score,a.total)}%</span></td><td class="mu">${fmt(a.ts)}</td></tr>`).join('')||'<tr><td colspan="4" class="mu">No attempts yet.</td></tr>'}</table></div></div>`}
+function mockStudent(){const mods=sylList().filter(t=>((mockOf(t.id)||{}).qs||[]).length),att=(S.matt||[]).slice().sort((a,b)=>b.ts-a.ts);
+ return`<div class="card"><b>Practice by module</b><p class="mu">Pick a module and test yourself. You get instant feedback and an explanation after every question, and you can retake as often as you like.</p></div>
+ ${mods.map(t=>{const n=mockOf(t.id).qs.length,a=att.filter(x=>x.moduleId==t.id),best=a.length?Math.max(...a.map(x=>pct(x.score,x.total))):null,opts=[5,10,20].filter(x=>x<n);
+  return`<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(t.name)}</b><span class="tag" style="flex:none">${n} questions</span></div><p class="mu" style="margin:4px 0 10px">${a.length?`${a.length} attempt${a.length>1?'s':''} · best ${best}%`:'Not attempted yet'}</p>${a.length?bar(best):''}
+  <div class="row" style="margin-top:10px;flex-wrap:nowrap"><select id="mn_${t.id}">${opts.map(x=>`<option value="${x}">${x} random questions</option>`).join('')}<option value="0">All ${n} questions</option></select><button style="flex:none" onclick="startMock('${t.id}')">Start ▶</button></div></div>`}).join('')||'<div class="card"><p class="mu">Your teacher hasn’t added any mock tests yet. Check back soon!</p></div>'}
+ ${att.length?`<div class="card"><b>My recent attempts</b>${att.slice(0,10).map(a=>`<div class="sr"><span style="flex:1;min-width:0">${esc(modName(a.moduleId)||a.moduleName)}<div class="mu">${fmt(a.ts)}</div></span><span class="tag">${a.score}/${a.total} · ${pct(a.score,a.total)}%</span></div>`).join('')}</div>`:''}`}
+function startMock(mid,n){const bank=((mockOf(mid)||{}).qs||[]).slice();if(!bank.length)return;if(n===undefined){const el=$('#mn_'+mid);n=el?+el.value:0}
+ for(let i=bank.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bank[i],bank[j]]=[bank[j],bank[i]]}
+ S.mt={mid,n,name:modName(mid),qs:bank.slice(0,n||bank.length),i:0,sel:-1,checked:false,res:[],done:false};render();scrollTo(0,0)}
+const mtPick=k=>{if(S.mt&&!S.mt.checked){S.mt.sel=k;render()}};
+function mtCheck(){const t=S.mt;if(!t||t.sel<0||t.checked)return;t.res[t.i]={sel:t.sel,ok:t.sel==t.qs[t.i].ai};t.checked=true;render()}
+function mtNext(){const t=S.mt;if(t.i<t.qs.length-1){t.i++;t.sel=-1;t.checked=false;render();scrollTo(0,0)}else finishMock()}
+function finishMock(){const t=S.mt;t.done=true;const score=t.res.filter(r=>r&&r.ok).length;
+ db.collection('mockAttempts').add({uid:S.user.id,name:S.user.name,un:S.user.username||'',moduleId:t.mid,moduleName:t.name,score,total:t.qs.length,ts:Date.now()}).catch(e=>alert('Could not save your result: '+(e.message||e.code)));render();scrollTo(0,0)}
+function mtQuit(){if(!S.mt.done&&!confirm('Quit this test? Your progress will be lost.'))return;S.mt=null;render()}
+function mtView(){const t=S.mt;
+ if(t.done){const sc=t.res.filter(r=>r&&r.ok).length,p=pct(sc,t.qs.length),wrong=t.qs.map((q,i)=>({q,i,r:t.res[i]})).filter(x=>!x.r||!x.r.ok);
+  return`<div class="card" style="text-align:center"><div style="font-size:44px">${p>=80?'🏆':p>=50?'👍':'📚'}</div><h2 style="margin:4px 0">${sc} / ${t.qs.length} · ${p}%</h2><p class="mu">${esc(t.name)} · ${p>=80?'Excellent work!':p>=50?'Good effort – review the ones you missed.':'Keep practising – you will get there!'}</p>${bar(p)}<div class="row" style="justify-content:center;margin-top:14px"><button onclick="startMock('${t.mid}',${t.n})">🔁 Retake</button><button class="g" onclick="S.mt=null;render()">Back to modules</button></div></div>
+  ${wrong.length?`<div class="card"><b>Review your mistakes (${wrong.length})</b>${wrong.map(({q,i,r})=>`<div class="item" style="cursor:default"><b>${i+1}.</b> ${esc(q.q)}<br><span class="er">Your answer: ${r?esc('ABCDE'[r.sel]+') '+q.opts[r.sel]):'not answered'}</span><br><span class="ok">Correct: ${esc('ABCDE'[q.ai]+') '+q.opts[q.ai])}</span>${q.exp?`<br><span class="mu">💡 ${esc(q.exp)}</span>`:''}</div>`).join('')}</div>`:'<div class="card"><p class="ok" style="margin:0">Perfect score – no mistakes to review! 🎉</p></div>'}`}
+ const q=t.qs[t.i],last=t.i==t.qs.length-1,ok=t.checked&&t.sel==q.ai;
+ return`<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>🎯 ${esc(t.name)}</b><button class="g" style="flex:none" onclick="mtQuit()">✕ Quit</button></div>${bar(Math.round((t.i+(t.checked?1:0))*100/t.qs.length))}<p class="mu" style="margin:8px 0">Question ${t.i+1} of ${t.qs.length} · Score so far ${t.res.filter(r=>r&&r.ok).length}</p>
+ <h3 style="font-size:18px;line-height:1.4">${esc(q.q)}</h3>${q.opts.map((o,k)=>{let c='';if(t.checked)c=k==q.ai?'good':k==t.sel?'bad':'';else if(k==t.sel)c='sel';return`<div class="opt ${c}" onclick="mtPick(${k})"><b>${'ABCDE'[k]}.</b> ${esc(o)}${t.checked&&k==q.ai?' ✓':''}</div>`}).join('')}
+ ${t.checked?`<div class="card" style="background:var(--bg);margin:12px 0"><b class="${ok?'ok':'er'}">${ok?'Correct! 🎉':'Not quite'}</b>${ok?'':` <span class="mu">Right answer: ${'ABCDE'[q.ai]}</span>`}${q.exp?`<div class="mt" style="margin-top:6px">💡 ${esc(q.exp)}</div>`:''}</div><button style="width:100%" onclick="mtNext()">${last?'Finish test':'Next question →'}</button>`:`<button style="width:100%;margin-top:8px" ${t.sel<0?'disabled':''} onclick="mtCheck()">Check answer</button>`}</div>`}
 async function upStu(inp){const f=inp.files[0];if(!f)return;const st=$('#ust');st.textContent='Reading…';
  try{const wb=XLSX.read(await f.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),stus=S.users.filter(u=>u.role=='student'),b=db.batch();let ok=0;const miss=[];
   rows.forEach(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();const un=(g.username||'').toLowerCase(),nm=(g.name||'').toLowerCase(),u=stus.find(x=>un&&x.username==un)||stus.find(x=>nm&&x.name.toLowerCase()==nm);
@@ -381,7 +441,7 @@ function tExams(){const d=S.draft;
  <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
  <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delDoc('exams','${e.id}')">Delete</button></div>`}).join('')}`}
 async function saveExam(){const d=S.draft,ref=db.collection('exams').doc(),b=db.batch(),qs=[];d.secs.forEach(s=>s.qs.forEach(q=>qs.push({...q,sec:s.name})));
- b.set(ref,{title:d.title.trim()||'Untitled exam',qs:qs.map(({ai,...q})=>q),ts:Date.now(),published:false});b.set(db.doc('examKeys/'+ref.id),{ai:qs.map(q=>q.ai)});await b.commit();S.draft=null;render()}
+ b.set(ref,{title:d.title.trim()||'Untitled exam',qs:qs.map(({ai,exp,...q})=>q),ts:Date.now(),published:false});b.set(db.doc('examKeys/'+ref.id),{ai:qs.map(q=>q.ai)});await b.commit();S.draft=null;render()}
 
 async function pubMarks(id,v){const ss=S.subs.filter(s=>s.examId==id),ck=ss.filter(s=>s.checked);if(v&&ck.length<ss.length&&!confirm((ss.length-ck.length)+' submission(s) are not checked yet and will get no result. Publish anyway?'))return;
  const b=db.batch();ck.forEach(s=>{const r=db.doc('results/'+s.id);v?b.set(r,{examId:id,uid:s.uid,marks:s.marks,total:s.total,max:s.max}):b.delete(r)});b.update(db.doc('exams/'+id),{published:v});await b.commit()}
@@ -425,11 +485,11 @@ const authGo=()=>S.mode=='signup'?signup():login();
 function render(){const a=$('#app');preRender();
  if(!db){a.innerHTML=cfgView();return}
  if(!S.user){a.innerHTML=authView();return}
- const T=S.user.role=='teacher',tabs=T?[['exams','📝','Exams','Exams'],['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['syllabus','🗂️','Syllabus','Syllabus'],['progress','📈','Progress','Course Progress'],['students','👥','Students','Students'],['chat','💬','Chat','Discussion']]:[['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['exams','📝','Exams','Exams & Results'],['progress','📈','Progress','Course Progress'],['chat','💬','Chat','Discussion']],cur=tabs.find(t=>t[0]==S.tab)||tabs[0],nm=String(S.user.name||'?').trim();
+ const T=S.user.role=='teacher',tabs=T?[['exams','📝','Exams','Exams'],['mock','🎯','Mock','Mock Tests'],['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['syllabus','🗂️','Syllabus','Syllabus'],['progress','📈','Progress','Course Progress'],['students','👥','Students','Students'],['chat','💬','Chat','Discussion']]:[['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['mock','🎯','Mock','Mock Tests'],['exams','📝','Exams','Exams & Results'],['progress','📈','Progress','Course Progress'],['chat','💬','Chat','Discussion']],cur=tabs.find(t=>t[0]==S.tab)||tabs[0],nm=String(S.user.name||'?').trim();
  a.innerHTML=`<header class="hd"><div class="brand"><span class="logo">📣</span><div><b>Explore Learning</b><small>Digital Marketing</small></div></div><div class="hr"><button class="ib inst" onclick="installApp()" ${DIP?'':'hidden'}>⬇ Install</button><span class="who"><b>${esc(nm)}</b><small>${esc(handle(S.user.username))} · ${esc(S.user.role)}</small></span><span class="av" onclick="showMe()" style="cursor:pointer" title="My profile">${esc(nm[0].toUpperCase())}</span><button class="ib" onclick="logout()" title="Logout" aria-label="Logout">⏻</button></div></header>
  ${S.taking?'':`<nav class="nav">${tabs.map(([k,ic,l])=>`<button class="${S.tab==k?'on':''}" onclick="S.tab='${k}';S.open=null;S.mat=null;render();scrollTo(0,0)"><span class="ic">${ic}</span>${l}${k=='chat'?cb():''}</button>`).join('')}</nav>`}
  <main>${S.taking||S.tab=='chat'?'':`<h2 class="pt">${cur[1]} ${cur[3]}</h2>`}
- ${S.taking?takeView():S.tab=='chat'?chatView(T):S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`;postRender()}
+ ${S.taking?takeView():S.tab=='mock'?mockView(T):S.tab=='chat'?chatView(T):S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`;postRender()}
 /* ---------- materials ---------- */
 function emb(u){let m;if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return'https://drive.google.com/file/d/'+m[1]+'/preview';if(m=u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/))return'https://www.youtube.com/embed/'+m[1];
  if(/facebook\.com|fb\.watch/.test(u))return'https://www.facebook.com/plugins/video.php?show_text=false&href='+encodeURIComponent(u);
@@ -448,16 +508,16 @@ function parseText(t){const qs=[];let c=null,m;t.split(/\r?\n/).forEach(l=>{l=l.
  if(m=l.match(/^(?:Q\.?\s*)?(\d+)[.)]\s*(.+)/i)){c={q:m[2],opts:[],ans:'',marks:1};qs.push(c)}
  else if(c&&(m=l.match(/^\(?([A-D])[.)]\s*(.+)/i)))c.opts.push(m[2]);
  else if(c&&(m=l.match(/^(?:ans(?:wer)?|correct)\s*[:\-]\s*(.+)/i)))c.ans=m[1].trim();
- else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l});
+ else if(c&&(m=l.match(/^(?:explanation|reason|why)\s*[:\-]\s*(.+)/i)))c.exp=m[1].trim();else if(c&&(m=l.match(/^marks?\s*[:\-]\s*(\d+)/i)))c.marks=+m[1];else if(c)c.q+=' '+l});
  return qs.map(q=>{let m=q.q.match(/[\[(]\s*(\d+)\s*marks?\s*[\])]/i);if(m){q.marks=+m[1];q.q=q.q.replace(m[0],'').trim()}
-  const mc=q.opts.length>1;return{q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc?'ABCD'.indexOf(q.ans.charAt(0).toUpperCase()):-1,marks:q.marks}})}
+  const mc=q.opts.length>1;return{q:q.q,type:mc?'mcq':'para',opts:mc?q.opts:[],ai:mc?'ABCD'.indexOf(q.ans.charAt(0).toUpperCase()):-1,marks:q.marks,exp:q.exp||''}})}
 async function readFile(f){const n=f.name.toLowerCase(),buf=await f.arrayBuffer();
  if(/\.xlsx?$/.test(n)||n.endsWith('.csv')){const wb=XLSX.read(buf),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
   return rows.map(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();
    const opts=['a','b','c','d','e'].map(x=>g['option '+x]||g[x]||g['option'+x]||'').filter(Boolean),q=g.question||g.q||'';
    const mc=opts.length>1&&!/para/i.test(g.type||''),an=(g.answer||g.correct||'').toUpperCase();
    let ai=mc?'ABCDE'.indexOf(an.charAt(0)):-1;if(mc&&ai>=0&&an.length>1){const j=opts.findIndex(o=>o.toUpperCase()==an);if(j>=0)ai=j}
-   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1}}).filter(q=>q.q)}
+   return{q,type:mc?'mcq':'para',opts:mc?opts:[],ai,marks:+(g.marks||g.mark)||1,exp:g.explanation||g.exp||g.reason||''}}).filter(q=>q.q)}
  if(n.endsWith('.docx'))return parseText((await mammoth.extractRawText({arrayBuffer:buf})).value);
  if(n.endsWith('.pdf')){const pdf=await pdfjsLib.getDocument({data:buf}).promise;let t='';
   for(let i=1;i<=pdf.numPages;i++){const c=await(await pdf.getPage(i)).getTextContent();let y=null;c.items.forEach(it=>{const yy=it.transform[5];if(y!==null&&Math.abs(yy-y)>3)t+='\n';t+=it.str+' ';y=yy});t+='\n'}
