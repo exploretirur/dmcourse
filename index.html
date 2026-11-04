@@ -132,7 +132,7 @@ async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').valu
 function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render();if(u.mustChange)setTimeout(forcePw,400)}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
 function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
- c('materials','mats');c('exams','exams');c('syllabus','syl');chatSub();mockSub();
+ c('materials','mats');c(T?'exams':'examMeta','exams');c('syllabus','syl');chatSub();mockSub();
  if(T){c('progress','prog');c('submissions','subs');c('users','users');c('examKeys','keysL')}else{U.push(db.doc('users/'+me).onSnapshot(d=>{const x=d.data();if(x){Object.assign(S.user,{name:x.name,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes});if(!S.taking)render()}}));c('progress','prog',db.collection('progress').where('uid','==',me));c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
 function logout(){unsub();S.mt=null;S.mm=null;S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.syl=[];S.prog=[];S.pstu=null;S.editStu=null;S.pf='all';S.sent=[];S.results=[];auth.signOut();render()}
 function stuView(){const st=S.users.filter(u=>u.role=='student'),ed=S.editStu&&st.find(u=>u.id==S.editStu),f=(k,l,t)=>`<div><span class="mu">${l}</span><input id="sd_${k}" type="${t||'text'}" value="${esc(ed[k])}"></div>`;
@@ -435,18 +435,39 @@ async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#es
   S.draft.secs.push({name,type,qs});render()}catch(e){st.textContent='Error: '+(e.message||e)}}
 function tExams(){const d=S.draft;
  return`<div class="card">${!d?`<b>Exam papers</b><p class="mu">Build an exam from sections, e.g. Section 1 – Multiple choice, Section 2 – Paragraph. Each section is uploaded separately from a Word, Excel or PDF file.</p><button onclick="S.draft={title:'',secs:[]};S.note='';render()">＋ Create new exam</button>`:`<b>New exam</b><input placeholder="Exam title" value="${esc(d.title)}" oninput="S.draft.title=this.value">
+ <div class="row"><div><span class="mu">Exam date (optional – can be set later)</span><input type="date" value="${esc(d.date||'')}" oninput="S.draft.date=this.value"></div><div><span class="mu">Opens at</span><input type="time" value="${esc(d.st||'00:00')}" oninput="S.draft.st=this.value"></div><div><span class="mu">Closes at</span><input type="time" value="${esc(d.en||'23:59')}" oninput="S.draft.en=this.value"></div></div>
+ <p class="mu">Students can see and take the exam only on this date, between the opening and closing time.</p>
  ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>
  <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}</p>`).join('')}</details></div>`).join('')}
  <div class="card" style="background:var(--bg)"><b>Add section ${d.secs.length+1}</b>
  <div class="row"><input id="secn" placeholder="Section name" value="Section ${d.secs.length+1}"><select id="sect"><option value="mcq">Multiple choice</option><option value="para">Paragraph / descriptive</option></select><input id="secm" type="number" min="0" step="0.5" placeholder="Marks per question (blank = use file)"></div>
  <input id="secf" type="file" accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="addSection(this)"><span class="mu" id="est">${esc(S.note||'')}</span>
  <details><summary class="mu">Expected file format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>; for multiple choice add options <code>A) …</code> to <code>D) …</code> and <code>Answer: B</code>.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
- <button ${d.secs.length?'':'disabled'} onclick="saveExam()">Publish exam to students</button> <button class="g" onclick="S.draft=null;render()">Discard</button>`}</div>
+ <button ${d.secs.length?'':'disabled'} onclick="saveExam()">${d.date?'Publish exam for '+esc(d.date):'Save exam (set date later)'}</button> <button class="g" onclick="S.draft=null;render()">Discard</button>`}</div>
  ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
- <p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
- <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delDoc('exams','${e.id}')">Delete</button></div>`}).join('')}`}
+ <p class="mu" style="margin:4px 0">${schedTxt(e)}</p><p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
+ <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="openDate('${e.id}')">📅 ${e.openAt?'Change date':'Set date'}</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delExam('${e.id}')">Delete</button></div>`}).join('')}`}
+const tm=t=>t&&t.toMillis?t.toMillis():(t&&t.seconds?t.seconds*1000:0);
+const p2=n=>String(n).padStart(2,'0'),ymd=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())},hm=ms=>{const d=new Date(ms);return p2(d.getHours())+':'+p2(d.getMinutes())};
+const fmtD=ms=>new Date(ms).toLocaleDateString([],{weekday:'short',day:'numeric',month:'short',year:'numeric'}),fmtT=ms=>new Date(ms).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const TS=d=>firebase.firestore.Timestamp.fromDate(d);
+function winOf(date,st,en){if(!date)return null;const[y,m,d]=date.split('-').map(Number),[sh,sm]=(st||'00:00').split(':').map(Number),[eh,em]=(en||'23:59').split(':').map(Number),o=new Date(y,m-1,d,sh,sm,0),c=new Date(y,m-1,d,eh,em,59);return c>o?{openAt:o,closeAt:c}:null}
+function winTxt(o,c){const whole=hm(o)=='00:00'&&hm(c)=='23:59';return'📅 '+fmtD(o)+' · '+(whole?'whole day':fmtT(o)+' – '+fmtT(c))}
+function schedTxt(e){const o=tm(e.openAt),c=tm(e.closeAt);if(!o)return'⚠️ No date set – students can’t see this exam yet';const n=Date.now();return winTxt(o,c)+' '+(n<o?'<span class="tag">Upcoming</span>':n<=c?'<span class="tag" style="background:var(--ok);color:#fff">Open now</span>':'<span class="tag">Closed</span>')}
 async function saveExam(){const d=S.draft,ref=db.collection('exams').doc(),b=db.batch(),qs=[];d.secs.forEach(s=>s.qs.forEach(q=>qs.push({...q,sec:s.name})));
- b.set(ref,{title:d.title.trim()||'Untitled exam',qs:qs.map(({ai,exp,...q})=>q),ts:Date.now(),published:false});b.set(db.doc('examKeys/'+ref.id),{ai:qs.map(q=>q.ai)});await b.commit();S.draft=null;render()}
+ const w=d.date?winOf(d.date,d.st,d.en):null;if(d.date&&!w)return alert('The closing time must be after the opening time.');
+ const title=d.title.trim()||'Untitled exam',max=qs.reduce((t,q)=>t+q.marks,0),doc={title,qs:qs.map(({ai,exp,...q})=>q),ts:Date.now(),published:false};
+ if(w){doc.openAt=TS(w.openAt);doc.closeAt=TS(w.closeAt);b.set(db.doc('examMeta/'+ref.id),{title,n:qs.length,max,openAt:doc.openAt,closeAt:doc.closeAt,ts:doc.ts})}
+ b.set(ref,doc);b.set(db.doc('examKeys/'+ref.id),{ai:qs.map(q=>q.ai)});
+ try{await b.commit();S.draft=null;render()}catch(e){alert('Could not save: '+(e.message||e.code))}}
+function openDate(id){const e=S.exams.find(x=>x.id==id);if(!e)return;const o=tm(e.openAt),c=tm(e.closeAt);
+ mkModal('dateBox',`<div class="box"><h3>📅 Exam date</h3><p class="mu"><b style="color:var(--tx)">${esc(e.title)}</b><br>Students can see and take this exam only on this date, between the opening and closing time.</p><span class="mu">Date *</span><input id="dd" type="date" value="${o?ymd(o):''}"><div class="row"><div><span class="mu">Opens at</span><input id="ds" type="time" value="${o?hm(o):'00:00'}"></div><div><span class="mu">Closes at</span><input id="de" type="time" value="${c?hm(c):'23:59'}"></div></div><p class="mu">Leave 00:00 – 23:59 for the whole day.</p><p class="er" id="dm"></p><div class="row" style="justify-content:flex-end">${o?`<button class="g" onclick="clearDate('${id}')">Remove date</button>`:''}<button class="g" onclick="closeM('dateBox')">Cancel</button><button onclick="saveDate('${id}')">Save date</button></div></div>`)}
+async function saveDate(id){const e=S.exams.find(x=>x.id==id),m=$('#dm'),dd=$('#dd').value;if(!dd)return m.textContent='Choose the exam date';const w=winOf(dd,$('#ds').value,$('#de').value);if(!w)return m.textContent='The closing time must be after the opening time';
+ if(w.closeAt<new Date()&&!confirm('This date has already passed, so students will see the exam as closed. Continue?'))return;
+ const b=db.batch(),o=TS(w.openAt),c=TS(w.closeAt);b.update(db.doc('exams/'+id),{openAt:o,closeAt:c});b.set(db.doc('examMeta/'+id),{title:e.title,n:e.qs.length,max:e.qs.reduce((t,q)=>t+q.marks,0),openAt:o,closeAt:c,ts:e.ts});
+ try{await b.commit();closeM('dateBox');toast('📅 Date saved',winTxt(w.openAt.getTime(),w.closeAt.getTime()).replace('📅 ',''))}catch(er){m.textContent='Could not save: '+(er.message||er.code)}}
+async function clearDate(id){if(!confirm('Remove the date? Students will no longer see this exam until you set a new date.'))return;const b=db.batch();b.update(db.doc('exams/'+id),{openAt:firebase.firestore.FieldValue.delete(),closeAt:firebase.firestore.FieldValue.delete()});b.delete(db.doc('examMeta/'+id));try{await b.commit();closeM('dateBox')}catch(e){alert('Could not remove: '+(e.message||e.code))}}
+async function delExam(id){const e=S.exams.find(x=>x.id==id);if(!confirm('Delete “'+(e?e.title:'this exam')+'”? Submissions already received are kept.'))return;const b=db.batch();['exams','examKeys','examMeta'].forEach(c=>b.delete(db.doc(c+'/'+id)));try{await b.commit()}catch(er){alert('Could not delete: '+(er.message||er.code))}}
 
 async function pubMarks(id,v){const ss=S.subs.filter(s=>s.examId==id),ck=ss.filter(s=>s.checked);if(v&&ck.length<ss.length&&!confirm((ss.length-ck.length)+' submission(s) are not checked yet and will get no result. Publish anyway?'))return;
  const b=db.batch();ck.forEach(s=>{const r=db.doc('results/'+s.id);v?b.set(r,{examId:id,uid:s.uid,marks:s.marks,total:s.total,max:s.max}):b.delete(r)});b.update(db.doc('exams/'+id),{published:v});await b.commit()}
@@ -460,15 +481,19 @@ function markView(){const e=S.exams.find(x=>x.id==S.open.e),k=(S.keys[e.id]||{})
 async function saveMarks(id){const s=S.subs.find(x=>x.id==id),e=S.exams.find(x=>x.id==s.examId),ins=[...document.querySelectorAll('.mk')];
  const marks=ins.map((x,i)=>Math.min(e.qs[i].marks,Math.max(0,parseFloat(x.value)||0))),d={marks,total:marks.reduce((a,b)=>a+b,0),max:e.qs.reduce((a,q)=>a+q.marks,0),checked:true},b=db.batch();
  b.update(db.doc('submissions/'+id),d);if(e.published)b.set(db.doc('results/'+id),{examId:e.id,uid:s.uid,...d});await b.commit();$('#mm').textContent='Saved ✓'}
-function sExams(){const my=S.results;
- if(S.open){const s=my.find(x=>x.id==S.open),e=S.exams.find(x=>x.id==s.examId);
+S.eq=S.eq||{};
+async function openMarks(rid,eid){try{if(!S.eq[eid]){const d=await db.doc('exams/'+eid).get();if(!d.exists)throw Error('Exam not found');S.eq[eid]={id:eid,...d.data()}}S.open=rid;render()}catch(e){alert('Could not load the mark list: '+(e.message||e.code))}}
+function sExams(){const my=S.results,now=Date.now();
+ if(S.open){const s=my.find(x=>x.id==S.open),e=s&&S.eq[s.examId];if(!e)return'<button class="g" onclick="S.open=null;render()">← Back</button><p class="mu">Loading…</p>';
   return`<button class="g" onclick="S.open=null;render()">← Back</button><div class="card"><b>${esc(e.title)} – Mark list</b><table><tr><th>#</th><th>Question</th><th>Marks</th></tr>${e.qs.map((q,i)=>`<tr><td>${i+1}</td><td>${esc(q.q)}</td><td>${s.marks?.[i]??0} / ${q.marks}</td></tr>`).join('')}<tr><th></th><th>Total</th><th>${s.total} / ${s.max}</th></tr></table></div>`}
- return S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const r=my.find(x=>x.examId==e.id),sent=S.sent.some(x=>x.examId==e.id);
-  return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((t,q)=>t+q.marks,0)} marks</span><p>${r?`<button onclick="S.open='${r.id}';render()">View marks</button>`:sent?'<span class="tag">Submitted – awaiting results</span>':`<button onclick="startExam('${e.id}')">Start exam</button>`}</p></div>`}).join('')||'<p class="mu">No exams available yet.</p>'}
-async function submitExam(){const{e,ans}=S.taking,un=ans.filter(a=>a===-1||a==='').length;
- if(!confirm((un?un+' question(s) unanswered. ':'')+'Submit now? You cannot change or view your answers afterwards.'))return;
+ const rank=e=>{const o=tm(e.openAt),c=tm(e.closeAt);return now<o?[1,o]:now<=c?[0,0]:[2,-c]};
+ return S.exams.filter(e=>tm(e.openAt)).sort((a,b)=>{const x=rank(a),y=rank(b);return x[0]-y[0]||x[1]-y[1]}).map(e=>{const r=my.find(x=>x.examId==e.id),sent=S.sent.some(x=>x.examId==e.id),o=tm(e.openAt),c=tm(e.closeAt);
+  const act=r?`<button onclick="openMarks('${r.id}','${e.id}')">View marks</button>`:sent?'<span class="tag">Submitted – awaiting results</span>':now<o?`<span class="tag">🔒 Opens ${fmtD(o)}, ${fmtT(o)}</span>`:now<=c?`<button onclick="startExam('${e.id}')">Start exam</button>`:'<span class="er">Closed – not submitted</span>';
+  return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.n} questions · ${e.max} marks</span><p class="mu" style="margin:4px 0">${winTxt(o,c)}</p><p style="margin:6px 0 0">${act}</p></div>`}).join('')||'<div class="card"><p class="mu">No exams are scheduled right now. Your exam appears here on the date your teacher sets.</p></div>'}
+async function submitExam(auto){if(!S.taking)return;const{e,ans}=S.taking,un=ans.filter(a=>a===-1||a==='').length;
+ if(!auto&&!confirm((un?un+' question(s) unanswered. ':'')+'Submit now? You cannot change or view your answers afterwards.'))return;
  const id=e.id+'_'+S.user.id,b=db.batch();b.set(db.doc('submissions/'+id),{examId:e.id,uid:S.user.id,name:S.user.name,un:S.user.username||'',answers:ans,marks:null,checked:false,ts:Date.now()});b.set(db.doc('sent/'+id),{examId:e.id,uid:S.user.id});
- try{await b.commit();S.taking=null;S.tab='exams';render()}catch(err){alert('Could not submit: '+(err.message||err.code)+'. Your answers are still on screen – try again.')}}
+ try{await b.commit();clearInterval(S.xt);S.taking=null;S.tab='exams';render();if(auto)toast('⏰ Time is up','Your answers were submitted automatically')}catch(err){alert('Could not submit: '+(err.message||err.code)+'. Your answers are still on screen – try again.')}}
 
 const _h=async p=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('lms::'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return p}};
 const CK=['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'];
@@ -563,9 +588,14 @@ async function readFile(f){const n=f.name.toLowerCase(),buf=await f.arrayBuffer(
  throw Error('Use .docx, .xlsx or .pdf')}
 /* ---------- teacher exams ---------- */
 /* ---------- student exams ---------- */
-function startExam(id){const e=S.exams.find(x=>x.id==id);if(!confirm('Start now? Once submitted you cannot view or change your answers.'))return;S.taking={e,i:0,ans:e.qs.map(q=>q.type=='mcq'?-1:'')};render()}
+async function startExam(id){const m=S.exams.find(x=>x.id==id);if(!m)return;const n=Date.now();if(n<tm(m.openAt))return alert('This exam has not opened yet.');if(n>tm(m.closeAt))return alert('This exam is closed.');
+ if(!confirm('Start now? The exam closes at '+fmtT(tm(m.closeAt))+' and is submitted automatically then. Once submitted you cannot view or change your answers.'))return;
+ try{const d=await db.doc('exams/'+id).get();if(!d.exists)throw Error('Exam not found');const e={id,...d.data()};S.taking={e,i:0,ans:e.qs.map(q=>q.type=='mcq'?-1:''),closeAt:tm(m.closeAt)};render();scrollTo(0,0);startTimer()}
+ catch(err){alert('Could not open the exam: '+(err.message||err.code)+'. It may not be open right now.')}}
+function leftTxt(){const t=S.taking;if(!t||!t.closeAt)return'';const l=t.closeAt-Date.now();if(l<=0)return'⏰ Time is up';const h=Math.floor(l/36e5),m=Math.floor(l%36e5/6e4),s=Math.floor(l%6e4/1e3);return'⏱ Time left '+(h?h+':':'')+(h?p2(m):m)+':'+p2(s)+' · closes at '+fmtT(t.closeAt)}
+function startTimer(){clearInterval(S.xt);S.xt=setInterval(()=>{const t=S.taking;if(!t){clearInterval(S.xt);return}const l=t.closeAt-Date.now(),el=$('#xtime');if(el){el.textContent=leftTxt();el.className=l<3e5?'er':'mu'}if(l<=0){clearInterval(S.xt);submitExam(true)}},1000)}
 function takeView(){const{e,i,ans}=S.taking,q=e.qs[i],last=i==e.qs.length-1;
- return`<div class="card"><p class="mu">${esc(e.title)}${q.sec?' · <b>'+esc(q.sec)+'</b>':''} · Question ${i+1} of ${e.qs.length} · ${q.marks} mark(s)</p><h3>${esc(q.q)}</h3>
+ return`<div class="card"><p id="xtime" class="mu" style="font-weight:600">${leftTxt()}</p><p class="mu">${esc(e.title)}${q.sec?' · <b>'+esc(q.sec)+'</b>':''} · Question ${i+1} of ${e.qs.length} · ${q.marks} mark(s)</p><h3>${esc(q.q)}</h3>
  ${q.type=='mcq'?q.opts.map((o,j)=>`<label class="opt"><input type="radio" name="o" ${ans[i]===j?'checked':''} onchange="S.taking.ans[${i}]=${j}">${'ABCDE'[j]}) ${esc(o)}</label>`).join(''):`<textarea rows="9" placeholder="Type your answer here…" oninput="S.taking.ans[${i}]=this.value">${esc(ans[i])}</textarea>`}
  <div class="row" style="margin-top:12px"><button class="g" ${i?'':'disabled'} onclick="go(-1)">← Previous</button>${last?'<button onclick="submitExam()">Submit exam</button>':'<button onclick="go(1)">Next →</button>'}</div>
  <p class="mu">${ans.filter(a=>a!==-1&&a!=='').length} of ${e.qs.length} answered</p></div>`}
@@ -579,5 +609,6 @@ async function installApp(){if(!DIP)return;DIP.prompt();try{await DIP.userChoice
 addEventListener('offline',()=>toast('You are offline','Reconnect to send or load new data'));
 addEventListener('online',()=>toast('Back online','Syncing…'));
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+setInterval(()=>{if(S.user&&S.user.role=='student'&&S.tab=='exams'&&!S.taking&&!S.open&&!document.hidden)render()},15000);
 init();
 </script></body></html>
