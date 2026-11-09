@@ -125,23 +125,32 @@ details.more[open] summary{margin-bottom:8px}
 .sr b{font-weight:600;overflow-wrap:anywhere}
 @media(max-width:600px){.tk{width:28px;height:28px;border-radius:8px}.pct{font-size:26px}.pn .pn{margin-left:6px;padding-left:8px}.pn .sw{padding-left:38px}}
 
-.tc{padding:0;overflow:hidden}
-.tc-h{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:14px}
+.tg>.card{margin:0}
+.tc{padding:0;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column}
+.tc-h{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;user-select:none;position:relative}
 .tc-h:hover{background:color-mix(in srgb,var(--pr) 5%,transparent)}
-.tc-i{flex:1 1 auto;min-width:0}
-.tc-i b{display:block;font-size:16px;overflow-wrap:anywhere;margin-bottom:3px}
-.tc-m{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ring{--c:var(--pr);width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--bd) 0);display:grid;place-items:center;flex:none}
+.ring.d{--c:var(--ok)}
+.ring span{width:66px;height:66px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:800;font-size:18px}
+.tc-i{min-width:0;width:100%}
+.tc-i b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.tc-i .mu,.tc-i .st{display:none}
+.tc-c{display:none}
+.tc-b{display:none;padding:2px 14px 14px;border-top:1px solid var(--bd)}
 .st{padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600}
 .st.d{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
 .st.p{background:color-mix(in srgb,var(--pr) 14%,transparent);color:var(--pr)}
 .st.n{background:color-mix(in srgb,var(--mu) 14%,transparent);color:var(--mu)}
-.tc-p{font-size:20px;font-weight:800;flex:none;color:var(--tx)}
-.tc-p.d{color:var(--ok)}
-.tc-c{flex:none;color:var(--mu);transition:transform .2s}
-.tc.open .tc-c{transform:rotate(180deg)}
-.tc-b{display:none;padding:2px 14px 14px;border-top:1px solid var(--bd)}
-.tc.open .tc-b{display:block;animation:fd .2s}
-@media(max-width:600px){.tc-h{padding:12px 14px;gap:10px}.tc-p{font-size:18px}.tc-b{padding:2px 10px 12px}}
+.tc.open{grid-column:1/-1;aspect-ratio:auto;animation:fd .2s}
+.tc.open .tc-h{flex-direction:row;text-align:left;justify-content:flex-start;gap:14px;padding:14px 16px}
+.tc.open .ring{width:56px;height:56px}.tc.open .ring span{width:44px;height:44px;font-size:14px}
+.tc.open .tc-i{flex:1 1 auto;width:auto}
+.tc.open .tc-i b{-webkit-line-clamp:unset;font-size:16px;margin-bottom:4px}
+.tc.open .tc-i .mu{display:inline}.tc.open .tc-i .st{display:inline-block;margin-right:8px}
+.tc.open .tc-c{display:block;flex:none;color:var(--mu);transform:rotate(180deg)}
+.tc.open .tc-b{display:block}
+@media(max-width:600px){.tg{grid-template-columns:repeat(2,1fr);gap:10px}.ring{width:72px;height:72px}.ring span{width:57px;height:57px;font-size:16px}.tc-i b{font-size:14px}.tc.open .tc-b{padding:2px 10px 12px}.tc.open .tc-h{padding:12px 14px}}
 </style></head><body><div id="app"><div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing</p><div class="spin"></div></div></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
@@ -448,7 +457,7 @@ function progNode(n,o,T,dn,f){if(!vis(n,dn,f))return'';
 function progBody(o,T){const L=sylList(),c=counts(o.id),d=progOf(o.id),f=S.pf,fb=(k,l)=>`<button class="${f==k?'on':''}" onclick="S.pf='${k}';render()">${l}</button>`,r=(l,v)=>`<div><span>${l}</span>${esc(v)||'–'}</div>`;
  return`<div class="card"><div class="phero"><div class="av">${esc(String(o.name||'?').trim().charAt(0).toUpperCase())}</div><div class="nm"><b>${esc(o.name)}</b><span class="mu">${esc(handle(o.username))}</span></div><div class="pct">${c.p}%</div></div>${bar(c.p)}<div class="chips"><span class="chip c1">✓ Covered ${c.n}</span><span class="chip c2">○ Pending ${c.t-c.n}</span></div><details class="more"><summary>Student details ▾</summary><div class="det">${r('Phone',o.phone)}${r('Email',o.email)}${r('Batch / Class',o.batch)}${r('Joined',o.joined)}</div>${o.notes?`<p class="mu">${esc(o.notes)}</p>`:''}</details></div>
  <div class="seg">${fb('all','All')}${fb('done','Covered')}${fb('pending','Pending')}</div>
- ${L.map(t=>{const tc=counts(o.id,t),body=(t.subs||[]).map(x=>progNode(x,o,T,d,f)).join('');if(f!='all'&&!body)return'';const op=!!(S.openT||(S.openT={}))[t.id],stt=tc.t&&tc.n==tc.t?['d','✓ Completed']:tc.n?['p','In progress']:['n','Not started'];return`<div class="card tc ${op?'open':''}" id="tc_${t.id}"><div class="tc-h" onclick="togT('${t.id}')"><div class="tc-i"><b>${esc(t.name)}</b><div class="tc-m"><span class="st ${stt[0]}">${stt[1]}</span><span class="mu">${tc.n}/${tc.t} done</span></div>${bar(tc.p)}</div><div class="tc-p ${stt[0]=='d'?'d':''}">${tc.p}%</div><svg class="tc-c" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="tc-b">${body||'<p class="mu">No sub topics added yet.</p>'}</div></div>`}).join('')||'<p class="mu">The teacher has not created a syllabus yet.</p>'}`}
+ <div class="tg">${L.map(t=>{const tc=counts(o.id,t),body=(t.subs||[]).map(x=>progNode(x,o,T,d,f)).join('');if(f!='all'&&!body)return'';const op=!!(S.openT||(S.openT={}))[t.id],dn=tc.t&&tc.n==tc.t,stt=dn?['d','✓ Completed']:tc.n?['p','In progress']:['n','Not started'];return`<div class="card tc ${op?'open':''}" id="tc_${t.id}"><div class="tc-h" onclick="togT('${t.id}')"><div class="ring ${dn?'d':''}" style="--p:${tc.p}"><span>${tc.p}%</span></div><div class="tc-i"><b>${esc(t.name)}</b><span class="st ${stt[0]}">${stt[1]}</span><span class="mu">${tc.n}/${tc.t} done</span></div><svg class="tc-c" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="tc-b">${body||'<p class="mu">No sub topics added yet.</p>'}</div></div>`}).join('')}</div>${L.length?'':'<p class="mu">The teacher has not created a syllabus yet.</p>'}`}
 function progView(T){
  if(!T)return progBody(S.user,false);
  const st=S.users.filter(u=>u.role=='student'),cur=st.find(u=>u.id==S.pstu);
