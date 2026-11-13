@@ -95,72 +95,6 @@ table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1p
 .opt.bad{border-color:var(--er);background:color-mix(in srgb,var(--er) 12%,var(--card))}
 @media(max-width:760px){.nav{overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{flex:1 0 auto;min-width:58px}}
 @media(max-width:760px){.nom{display:none}}
-/* progress: elegant layout */
-.pk{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--sh)}
-.pk label{display:block;font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em}
-.pk select{appearance:none;-webkit-appearance:none;margin:6px 0 0;padding:13px 42px 13px 14px;font-weight:600;cursor:pointer;background:var(--bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236a7090' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 14px center}
-.pk select:focus{border-color:var(--pr);box-shadow:0 0 0 3px color-mix(in srgb,var(--pr) 18%,transparent)}
-.phero{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.av{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex:none}
-.phero .nm{flex:1 1 150px;min-width:0}.phero .nm b{display:block;font-size:17px;overflow-wrap:anywhere}
-.pct{font-size:30px;font-weight:800;line-height:1;color:var(--ok);flex:none}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.chip{padding:5px 12px;border-radius:99px;font-size:13px;font-weight:600}
-.chip.c1{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
-.chip.c2{background:color-mix(in srgb,var(--mu) 14%,transparent);color:var(--mu)}
-.phero+.bar{margin-top:14px;height:12px}
-details.more{margin-top:12px;border-top:1px solid var(--bd);padding-top:10px}
-details.more summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--pr);list-style:none}
-details.more summary::-webkit-details-marker{display:none}
-details.more[open] summary{margin-bottom:8px}
-.seg{display:flex;gap:4px;padding:4px;background:var(--card);border:1px solid var(--bd);border-radius:14px;margin-bottom:14px}
-.seg button{flex:1;margin:0;padding:9px 6px;border-radius:10px;font-size:14px;background:transparent;color:var(--mu);border:0;box-shadow:none}
-.seg button.on{background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff}
-.thd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.thd b{font-size:16px;overflow-wrap:anywhere}.thd .tag{flex:none}
-.pn{margin-left:0}.pn .pn{margin-left:10px;padding-left:10px;border-left:2px solid var(--bd)}
-.pn>.sr{border-bottom:0;padding:8px 6px;border-radius:10px}.pn>.sr:hover{background:color-mix(in srgb,var(--pr) 6%,transparent)}
-.pn .sw{padding:3px 6px 3px 40px}
-.sr b{font-weight:600;overflow-wrap:anywhere}
-@media(max-width:600px){.tk{width:28px;height:28px;border-radius:8px}.pct{font-size:26px}.pn .pn{margin-left:6px;padding-left:8px}.pn .sw{padding-left:38px}}
-
-.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:14px}
-.tg>.card{margin:0}
-.tc{padding:0;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column}
-.tc-h{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;user-select:none;position:relative}
-.tc-h:hover{background:color-mix(in srgb,var(--pr) 5%,transparent)}
-.ring{--c:var(--pr);width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--bd) 0);display:grid;place-items:center;flex:none}
-.ring.d{--c:var(--ok)}
-.ring span{width:66px;height:66px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:800;font-size:18px}
-.tc-i{min-width:0;width:100%}
-.tc-i b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;line-height:1.3;overflow-wrap:anywhere}
-.tc-i .mu,.tc-i .st{display:none}
-.tc-c{display:none}
-.tc-b{display:none;padding:2px 14px 14px;border-top:1px solid var(--bd)}
-.st{padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600}
-.st.d{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
-.st.p{background:color-mix(in srgb,var(--pr) 14%,transparent);color:var(--pr)}
-.st.n{background:color-mix(in srgb,var(--mu) 14%,transparent);color:var(--mu)}
-.tc.open{grid-column:1/-1;aspect-ratio:auto;animation:fd .2s}
-.tc.open .tc-h{flex-direction:row;text-align:left;justify-content:flex-start;gap:14px;padding:14px 16px}
-.tc.open .ring{width:56px;height:56px}.tc.open .ring span{width:44px;height:44px;font-size:14px}
-.tc.open .tc-i{flex:1 1 auto;width:auto}
-.tc.open .tc-i b{-webkit-line-clamp:unset;font-size:16px;margin-bottom:4px}
-.tc.open .tc-i .mu{display:inline}.tc.open .tc-i .st{display:inline-block;margin-right:8px}
-.tc.open .tc-c{display:block;flex:none;color:var(--mu);transform:rotate(180deg)}
-.tc.open .tc-b{display:block}
-@media(max-width:600px){.tg{grid-template-columns:repeat(2,1fr);gap:10px}.ring{width:72px;height:72px}.ring span{width:57px;height:57px;font-size:16px}.tc-i b{font-size:14px}.tc.open .tc-b{padding:2px 10px 12px}.tc.open .tc-h{padding:12px 14px}}
-
-.exd{margin:6px 0;padding:7px 12px;border-radius:10px;font-size:13px;background:color-mix(in srgb,var(--pr) 9%,transparent);color:var(--tx);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.exd.soon{background:color-mix(in srgb,#f59e0b 18%,transparent)}.exd.live{background:color-mix(in srgb,var(--ok) 16%,transparent)}.exd.over{background:color-mix(in srgb,var(--mu) 12%,transparent);color:var(--mu)}
-.spk{border:1px solid var(--bd);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--bg)}
-.spk-all{display:flex;gap:8px;align-items:center;cursor:pointer}.spk input[type=checkbox]{width:auto;margin:0;flex:none}
-.spk-s{margin:8px 0 6px}
-.spk-b{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}.spk-b button{margin:0;padding:5px 12px;font-size:12px}
-.spk-l{max-height:230px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px 10px}
-.spk-l.off{opacity:.4;pointer-events:none}
-.spk-i{display:flex;gap:8px;align-items:center;padding:7px 6px;border-radius:8px;cursor:pointer;font-size:14px}.spk-i:hover{background:color-mix(in srgb,var(--pr) 7%,transparent)}
-.spk-i span{min-width:0;overflow-wrap:anywhere}
 </style></head><body><div id="app"><div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing</p><div class="spin"></div></div></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
@@ -189,20 +123,22 @@ async function signup(){const n=($('#n').value||'').trim(),u=$('#u').value.trim(
  if(!n||u.length<3||p.length<6)return amsg('Enter your name, a username or email (3+ chars) and a password (6+ chars)');if(p!==$('#p2').value)return amsg('Passwords do not match');
  let created=false;
  try{const uid=(await auth.createUserWithEmailAndPassword(u.includes('@')?u:u+DOM,p)).user.uid;created=true;
-  await db.doc('users/'+uid).set({username:u,name:n,role});enter({id:uid,role,name:n,username:u})}
+  await db.doc('users/'+uid).set({username:u,name:n,role});if(!u.includes('@'))try{await db.doc('usernames/'+u).set({email:u+DOM,uid})}catch(x){}enter({id:uid,role,name:n,username:u})}
  catch(e){if(created){try{await auth.currentUser.delete()}catch(x){}}amsg(aerr(e))}}
 
 
 async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').value;
- try{const uid=(await auth.signInWithEmailAndPassword(u.includes('@')?u:(u||'x')+DOM,p)).user.uid;await loadProfile(uid);if(!S.user)amsg('Profile not found')}catch(e){amsg(aerr(e))}}
+ try{let em=u.includes('@')?u:(u||'x')+DOM;
+  if(u&&!u.includes('@')){try{const d=await db.doc('usernames/'+u).get();if(d.exists){const x=d.data();if(x.blocked)throw{code:'auth/invalid-credential'};if(x.email)em=x.email}}catch(e){if(e.code=='auth/invalid-credential')throw e}}
+  const uid=(await auth.signInWithEmailAndPassword(em,p)).user.uid;await loadProfile(uid);if(!S.user)amsg('Profile not found')}catch(e){amsg(aerr(e))}}
 function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render();if(u.mustChange)setTimeout(forcePw,400)}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
-function sub(){unsub();S.exReady=false;setTimeout(()=>{S.exReady=true;exCheck()},2500);const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(k=='exams'||k=='sent'||k=='results')exCheck();if(!S.taking)render()},e=>console.error(e)));
+function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
  c('materials','mats');c(T?'exams':'examMeta','exams');c('syllabus','syl');chatSub();mockSub();
- if(T){c('progress','prog');c('submissions','subs');c('users','users');c('examKeys','keysL')}else{U.push(db.doc('users/'+me).onSnapshot(d=>{const x=d.data();if(x){Object.assign(S.user,{name:x.name,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes});if(!S.taking)render()}}));c('progress','prog',db.collection('progress').where('uid','==',me));c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
+ if(T){c('progress','prog');c('submissions','subs');c('users','users');c('examKeys','keysL')}else{U.push(db.doc('users/'+me).onSnapshot(d=>{const x=d.data();if(x){Object.assign(S.user,{username:x.username,name:x.name,phone:x.phone,email:x.email,batch:x.batch,joined:x.joined,notes:x.notes});if(!S.taking)render()}}));c('progress','prog',db.collection('progress').where('uid','==',me));c('sent','sent',db.collection('sent').where('uid','==',me));c('results','results',db.collection('results').where('uid','==',me))}}
 function logout(){unsub();S.mt=null;S.mm=null;S.mode='login';S.user=null;S.taking=null;S.open=null;S.subs=[];S.users=[];S.syl=[];S.prog=[];S.pstu=null;S.editStu=null;S.pf='all';S.sent=[];S.results=[];auth.signOut();render()}
 function stuView(){const st=S.users.filter(u=>u.role=='student'),ed=S.editStu&&st.find(u=>u.id==S.editStu),f=(k,l,t)=>`<div><span class="mu">${l}</span><input id="sd_${k}" type="${t||'text'}" value="${esc(ed[k])}"></div>`;
- return`${ed?`<div class="card"><b>Student details – ${esc(ed.name)}</b><div class="det">${f('phone','Phone','tel')}${f('email','Email','email')}${f('batch','Batch / Class')}${f('joined','Joining date','date')}</div><span class="mu">Notes</span><textarea id="sd_notes" rows="2">${esc(ed.notes)}</textarea><p><button onclick="saveStu('${ed.id}')">Save details</button> <button class="g" onclick="S.editStu=null;render()">Cancel</button> <span class="er" id="sdm"></span></p></div>`:''}
+ return`${ed?`<div class="card"><b>Student details – ${esc(ed.name)}</b><div class="det">${f('username','Login username')}${f('phone','Phone','tel')}${f('email','Email','email')}${f('batch','Batch / Class')}${f('joined','Joining date','date')}</div><p class="mu" style="margin:6px 0 0">Changing the <b>login username</b> changes how this student logs in (their password stays the same). Tell the student the new username.</p><span class="mu">Notes</span><textarea id="sd_notes" rows="2">${esc(ed.notes)}</textarea><p><button onclick="saveStu('${ed.id}')">Save details</button> <button class="g" onclick="S.editStu=null;render()">Cancel</button> <span class="er" id="sdm"></span></p></div>`:''}
  <div class="card"><b>Upload student details</b><p class="mu">Upload an Excel/CSV with columns: <code>Username</code> (or <code>Name</code>), Phone, Email, Batch, Joined, Notes. Details are matched to students who have signed up.</p><input type="file" accept=".xlsx,.xls,.csv" onchange="upStu(this)"><span class="mu" id="ust"></span></div>
  <div class="card"><div class="row" style="justify-content:space-between"><b>Students</b><button onclick="openStu()">＋ Add student</button></div><p class="mu">Add a student with “Add student”, or students can create their own accounts using “Sign up”. Click “Details” to edit phone, batch etc.</p><div style="overflow-x:auto"><table><tr><th>Name</th><th>Username</th><th>Phone</th><th>Batch</th><th>Course progress</th><th></th></tr>${st.map(u=>{const c=counts(u.id);return`<tr><td>${esc(u.name)}</td><td>${esc(u.username)}</td><td>${esc(u.phone)||'<span class="mu">–</span>'}</td><td>${esc(u.batch)||'<span class="mu">–</span>'}</td><td>${c.p}%</td><td><a href="#" onclick="S.editStu='${u.id}';render();return false">Details</a> · <a href="#" onclick="S.tab='progress';S.pstu='${u.id}';render();return false">Progress</a> · <a href="#" onclick="openReset('${u.id}');return false">Reset password</a> · <a href="#" class="er" onclick="delDoc('users','${u.id}');return false">Remove</a></td></tr>`}).join('')}</table></div></div>`}
 function openStu(){if($('#stuModal'))return;const d=document.createElement('div');d.id='stuModal';d.className='modal';
@@ -223,7 +159,7 @@ async function addStudent(){const g=k=>$('#ns_'+k).value.trim(),n=g('name'),u=g(
  try{/* separate Firebase app so the teacher stays logged in */
   app=firebase.initializeApp(firebaseConfig,'stu'+Date.now());const a2=app.auth();
   uid=(await a2.createUserWithEmailAndPassword(u.includes('@')?u:u+DOM,p)).user.uid;
-  try{await app.firestore().doc('users/'+uid).set({username:u,name:n,role:'student'})}catch(e){try{await a2.currentUser.delete()}catch(x){}throw e}
+  try{await app.firestore().doc('users/'+uid).set({username:u,name:n,role:'student'});if(!u.includes('@'))try{await app.firestore().doc('usernames/'+u).set({email:u+DOM,uid})}catch(x){}}catch(e){try{await a2.currentUser.delete()}catch(x){}throw e}
   await a2.signOut()}
  catch(e){m.textContent=aerr(e);btn.disabled=false;if(app)try{await app.delete()}catch(x){}return}
  try{await app.delete()}catch(x){}
@@ -288,7 +224,7 @@ function mediaHTML(m){const u=urls(m.url)[0];if(!u)return'';
  if(m.kind=='image')return`<img class="mimg" loading="lazy" src="${esc(u)}" alt="${esc(m.fname)}" onclick="viewImg('${m.id}')">`;
  if(m.kind=='video')return`<video class="mvid" src="${esc(u)}" controls preload="metadata" playsinline></video>`;
  return`<a class="lk" href="${esc(u)}" target="_blank" rel="noopener noreferrer"><span style="font-size:24px">${docIc(m.fname||u)}</span><span style="flex:1;min-width:0"><b style="word-break:break-all">${esc(m.fname)}</b><div class="mu">${sz(m.size)}</div></span><span class="mu">Open ↗</span></a>`}
-function msgHTML(m,me,T,showTopic){const mine=m.uid==me,f=m.type=='file';return`<div class="msg ${mine?'me':''}"><div class="mu"><b style="color:var(--tx)">${esc(m.name)}</b>${hs(m)} ${m.role=='teacher'?'<span class="tag">teacher</span> ':''}· ${fmt(m.ts)}${mine||T?` · ${T&&m.uid==S.user.id?`<a href="#" onclick="chatEdit('${m.id}');return false">edit</a> · `:''}<a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:''}</div>${f?mediaHTML(m):''}${m.text?`<div class="mt">${linkify(m.text)}</div>`:''}${f?'':urls(m.text).map(linkCard).join('')}</div>`}
+function msgHTML(m,me,T,showTopic){const mine=m.uid==me,f=m.type=='file';return`<div class="msg ${mine?'me':''}"><div class="mu"><b style="color:var(--tx)">${esc(m.name)}</b>${hs(m)} ${m.role=='teacher'?'<span class="tag">teacher</span> ':''}· ${fmt(m.ts)}${mine||T?` · <a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:''}</div>${f?mediaHTML(m):''}${m.text?`<div class="mt">${linkify(m.text)}</div>`:''}${f?'':urls(m.text).map(linkCard).join('')}</div>`}
 function viewImg(id){const m=(S.chat||[]).find(x=>x.id==id),u=m&&urls(m.url)[0];if(!u)return;const can=m.uid==S.user.id||S.user.role=='teacher';
  mkModal('imgView',`<div class="box" style="max-width:900px;text-align:center"><img src="${esc(u)}" alt="" style="max-width:100%;max-height:68vh;border-radius:12px"><p class="mu">${esc(m.name)}${hs(m)} · ${fmt(m.ts)}</p>${m.text?`<div class="mt">${linkify(m.text)}</div>`:''}<div class="row" style="justify-content:center;margin-top:10px"><a class="btn" href="${esc(u)}" target="_blank" rel="noopener noreferrer">Open original</a>${can?`<button class="d" onclick="closeM('imgView');chatDel('${m.id}')">Delete</button>`:''}<button class="g" onclick="closeM('imgView')">Close</button></div></div>`)}
 function groupM(list){const g=[];list.forEach(m=>{const k=new Date(m.ts).toLocaleDateString([],{month:'long',year:'numeric'});if(!g.length||g[g.length-1][0]!=k)g.push([k,[]]);g[g.length-1][1].push(m)});return g}
@@ -325,7 +261,7 @@ function chatView(T){const me=S.user.id,sec=S.csec||'chat',all=S.chat||[],news=a
  chat=all.filter(m=>m.type!='news'&&m.type!='doc'&&m.type!='link'),
  links=all.filter(m=>m.type!='news'&&m.type!='doc'&&m.type!='file'&&(m.type=='link'||urls(m.text).length)).sort((a,b)=>b.ts-a.ts),
  docs=[...all.filter(m=>m.type=='doc'),...fdocs].sort((a,b)=>b.ts-a.ts),
- del=m=>m.uid==me||T?` · ${T&&m.uid==S.user.id?`<a href="#" onclick="chatEdit('${m.id}');return false">edit</a> · `:''}<a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:'',
+ del=m=>m.uid==me||T?` · <a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:'',
  empty=t=>`<p class="mu" style="text-align:center;margin-top:24px">${t}</p>`,
  up=(k,l)=>USE_STORAGE?`<button onclick="pickFile('${k}')">＋ ${l}</button>`:'';
  const pane=sec=='images'?`<div class="row">${up('image','Add images')}</div>${groupM(imgs).map(([k,l])=>`<h4 class="mh">${k}</h4><div class="gal">${l.map(m=>`<img loading="lazy" alt="${esc(m.fname)}" src="${esc(urls(m.url)[0]||'')}" onclick="viewImg('${m.id}')">`).join('')}</div>`).join('')||empty('No images yet. Tap “＋ Add images” to share one.')}`
@@ -338,7 +274,7 @@ function chatView(T){const me=S.user.id,sec=S.csec||'chat',all=S.chat||[],news=a
   <div class="row" style="align-items:flex-end;margin-top:8px;flex-wrap:nowrap">${USE_STORAGE?'<button class="g plus" onclick="plusSheet()" aria-label="Add image, video or document">＋</button>':''}<textarea id="cin" rows="2" placeholder="Write a message…" oninput="S.cd=this.value" onkeydown="chatKey(event)">${esc(S.cd)}</textarea><button onclick="chatSend()">Send</button></div>`;
  return`<div class="card"><div class="row" style="justify-content:space-between"><b>💬 Discussion room</b><span class="row" style="flex:0 0 auto">${window.Notification&&Notification.permission=='default'?'<button class="g" onclick="askNotif()">🔔 Enable alerts</button>':''}${T?'<button onclick="openNews()">📢 Post news</button>':''}</span></div>
  ${S.cerr?`<p class="er">Chat could not load (${esc(S.cerr)}). Add Firestore rules for the “chat” collection.</p>`:''}
- ${shown.map(m=>`<div class="card news" style="margin:10px 0 0"><div class="mu">📢 News · ${esc(m.name)}${hs(m)} · ${fmt(m.ts)}${T?` · <a href="#" onclick="waShow(S.chat.find(x=>x.id=='${m.id}'));return false">WhatsApp</a> · ${T&&m.uid==S.user.id?`<a href="#" onclick="chatEdit('${m.id}');return false">edit</a> · `:''}<a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:''}</div><b>${esc(m.title)}</b><div class="mt">${linkify(m.text)}</div>${urls(m.text).map(linkCard).join('')}</div>`).join('')}
+ ${shown.map(m=>`<div class="card news" style="margin:10px 0 0"><div class="mu">📢 News · ${esc(m.name)}${hs(m)} · ${fmt(m.ts)}${T?` · <a href="#" onclick="waShow(S.chat.find(x=>x.id=='${m.id}'));return false">WhatsApp</a> · <a href="#" class="er" onclick="chatDel('${m.id}');return false">delete</a>`:''}</div><b>${esc(m.title)}</b><div class="mt">${linkify(m.text)}</div>${urls(m.text).map(linkCard).join('')}</div>`).join('')}
  ${news.length>2?`<p class="mu"><a href="#" onclick="S.allNews=!S.allNews;render();return false">${S.allNews?'Show fewer news':'Show all '+news.length+' news posts'}</a></p>`:''}
  <div class="chips">${[['chat','💬 Chat',0],['images','🖼️ Images',imgs.length],['videos','🎬 Videos',vids.length],['docs','📄 Docs',docs.length],['links','🔗 Links',links.length]].filter(c=>USE_STORAGE||c[2]||!/images|videos/.test(c[0])).map(([k,l,n])=>`<button class="${sec==k?'':'g'}" onclick="S.csec='${k}';S.cforce=1;render()">${l}${n?` · ${n}`:''}</button>`).join('')}</div>
  ${pane}</div>`}
@@ -353,11 +289,6 @@ async function chatSend(){const el=$('#cin'),t=(el?el.value:S.cd||'').trim();if(
  S.cd='';if(el){el.value='';el.focus()}S.cforce=1;
  try{await db.collection('chat').add({type:'msg',topic:'General',text:t,uid:S.user.id,name:S.user.name,un:S.user.username||'',role:S.user.role,ts:Date.now()})}
  catch(e){S.cd=t;alert('Could not send: '+(e.message||e.code)+'\nCheck the Firestore rules for the “chat” collection.');render()}}
-function chatEdit(id){const m=(S.chat||[]).find(x=>x.id==id);if(!m)return;const nw=m.type=='news';
- mkModal('chEdit',`<div class="box"><h3>✏ Edit ${nw?'news':'post'}</h3>${nw?`<span class="mu">Title *</span><input id="ce_t" maxlength="120" value="${esc(m.title||'')}">`:''}<span class="mu">${nw?'Message *':'Text'}</span><textarea id="ce_x" rows="5" maxlength="2000">${esc(m.text||'')}</textarea><p class="er" id="cem"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('chEdit')">Cancel</button><button onclick="chatSave('${id}')">Save</button></div></div>`,true)}
-async function chatSave(id){const m=(S.chat||[]).find(x=>x.id==id),nw=m&&m.type=='news',t=$('#ce_x').value.trim(),ti=nw?$('#ce_t').value.trim():'',er=$('#cem');if(!m)return;
- if(nw&&(!ti||!t))return er.textContent='Enter a title and a message';if(!nw&&!t&&m.type!='file')return er.textContent='The text cannot be empty';
- try{await db.doc('chat/'+id).update({text:t.slice(0,2000),...(nw?{title:ti.slice(0,120)}:{}),edited:true});closeM('chEdit')}catch(e){er.textContent='Could not save: '+(e.message||e.code)+' (check the Firestore rules allow teachers to update “chat”)'}}
 async function chatDel(id){const m=(S.chat||[]).find(x=>x.id==id);if(!confirm('Delete this post?'))return;try{if(m&&m.path){try{await stor().ref(m.path).delete()}catch(e){}}await db.doc('chat/'+id).delete()}catch(e){alert('Could not delete: '+(e.message||e.code))}}
 function openNews(){mkModal('newsForm',`<div class="box"><h3>📢 Post news</h3><p class="mu">Students get a pop-up the moment they are online (and a browser alert if they enabled it). Afterwards you can send it on WhatsApp too.</p><span class="mu">Title *</span><input id="nt" placeholder="e.g. Class moved to 6 PM"><span class="mu">Message *</span><textarea id="nb" rows="4" placeholder="Details… (links are allowed)"></textarea><p class="er" id="nm2"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('newsForm')">Cancel</button><button id="nbtn" onclick="postNews()">Post news</button></div></div>`);$('#nt').focus()}
 async function postNews(){const t=$('#nt').value.trim(),b=$('#nb').value.trim(),m=$('#nm2');if(!t||!b)return m.textContent='Enter a title and a message';$('#nbtn').disabled=true;
@@ -407,12 +338,11 @@ async function mockUpload(mid,inp){const f=inp.files[0];inp.value='';if(!f)retur
   if(bank.length+add.length>1000)throw Error('A module can hold up to 1000 questions');
   await saveBank(mid,[...bank,...add]);toast('✅ '+add.length+' questions added to '+modName(mid),(bad?bad+' skipped (no options or answer). ':'')+(dup?dup+' duplicates skipped.':''))}
  catch(e){alert('Upload failed: '+(e.message||e.code||e))}}
-function openMq(mid,qid){const bank=(mockOf(mid)||{}).qs||[],q=qid?bank.find(x=>x.id==qid):null,L=['A','B','C','D'].concat(q&&q.opts.length>4?['E']:[]);
- mkModal('mqBox',`<div class="box"><h3>${q?'✏ Edit':'Add'} question</h3><p class="mu">Module: <b style="color:var(--tx)">${esc(modName(mid))}</b></p><span class="mu">Question *</span><textarea id="mq_q" rows="2">${q?esc(q.q):''}</textarea>${L.map((l,k)=>`<span class="mu">Option ${l}${k<2?' *':''}</span><input id="mq_${l}" value="${q?esc(q.opts[k]||''):''}">`).join('')}<span class="mu">Correct answer *</span><select id="mq_c">${L.map((l,k)=>`<option ${q&&q.ai==k?'selected':''}>${l}</option>`).join('')}</select><span class="mu">Explanation (optional)</span><textarea id="mq_e" rows="2" placeholder="Shown to students after they answer">${q?esc(q.exp||''):''}</textarea><p class="er" id="mqm"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('mqBox')">Cancel</button><button onclick="saveMq('${mid}'${q?`,'${q.id}'`:''})">Save question</button></div></div>`)}
-async function saveMq(mid,qid){const L=['A','B','C','D'].concat($('#mq_E')?['E']:[]),q=$('#mq_q').value.trim(),m=$('#mqm'),c=L.indexOf($('#mq_c').value),raw=L.map(l=>$('#mq_'+l).value.trim());
+function openMq(mid){mkModal('mqBox',`<div class="box"><h3>Add question</h3><p class="mu">Module: <b style="color:var(--tx)">${esc(modName(mid))}</b></p><span class="mu">Question *</span><textarea id="mq_q" rows="2"></textarea>${['A','B','C','D'].map(l=>`<span class="mu">Option ${l}${l<'C'?' *':''}</span><input id="mq_${l}">`).join('')}<span class="mu">Correct answer *</span><select id="mq_c"><option>A</option><option>B</option><option>C</option><option>D</option></select><span class="mu">Explanation (optional)</span><textarea id="mq_e" rows="2" placeholder="Shown to students after they answer"></textarea><p class="er" id="mqm"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('mqBox')">Cancel</button><button onclick="saveMq('${mid}')">Save question</button></div></div>`)}
+async function saveMq(mid){const q=$('#mq_q').value.trim(),m=$('#mqm'),L=['A','B','C','D'],c=L.indexOf($('#mq_c').value),raw=L.map(l=>$('#mq_'+l).value.trim());
  if(!q)return m.textContent='Enter the question';if(raw.filter(Boolean).length<2)return m.textContent='Enter at least two options';if(!raw[c])return m.textContent='The correct answer must have an option text';
- const opts=raw.filter(Boolean),ai=raw.slice(0,c).filter(Boolean).length,bank=(mockOf(mid)||{}).qs||[],nq={id:qid||uid(),q:q.slice(0,500),opts:opts.map(o=>o.slice(0,200)),ai,exp:$('#mq_e').value.trim().slice(0,500)};
- try{await saveBank(mid,qid?bank.map(x=>x.id==qid?nq:x):[...bank,nq]);closeM('mqBox')}catch(e){m.textContent='Could not save: '+(e.message||e.code)}}
+ const opts=raw.filter(Boolean),ai=raw.slice(0,c).filter(Boolean).length,bank=(mockOf(mid)||{}).qs||[];
+ try{await saveBank(mid,[...bank,{id:uid(),q:q.slice(0,500),opts:opts.map(o=>o.slice(0,200)),ai,exp:$('#mq_e').value.trim().slice(0,500)}]);closeM('mqBox')}catch(e){m.textContent='Could not save: '+(e.message||e.code)}}
 async function delMq(mid,qid){if(!confirm('Delete this question?'))return;try{await saveBank(mid,((mockOf(mid)||{}).qs||[]).filter(q=>q.id!=qid))}catch(e){alert('Could not delete: '+(e.message||e.code))}}
 async function clearBank(mid){if(!confirm('Delete ALL questions of '+modName(mid)+'?'))return;try{await db.doc('mocks/'+mid).delete();S.mm=null}catch(e){alert('Could not delete: '+(e.message||e.code))}}
 const pct=(a,b)=>b?Math.round(a*100/b):0;
@@ -424,7 +354,7 @@ function mockTeacher(){const mods=sylList(),att=(S.matt||[]).slice().sort((a,b)=
  ${mods.length?mods.map(t=>{const b=(mockOf(t.id)||{}).qs||[],a=att.filter(x=>x.moduleId==t.id),open=S.mm==t.id;
   return`<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(t.name)}</b><span class="tag" style="flex:none">${b.length} questions</span></div><p class="mu" style="margin:4px 0 10px">${a.length} attempts${a.length?' · average '+pct(a.reduce((s,x)=>s+x.score,0),a.reduce((s,x)=>s+x.total,0))+'%':''}</p>
   <div class="row"><label class="btn" style="cursor:pointer;text-align:center">⬆ Upload file<input type="file" hidden accept=".docx,.xlsx,.xls,.csv,.pdf" onchange="mockUpload('${t.id}',this)"></label><button class="g" onclick="openMq('${t.id}')">＋ Add question</button>${b.length?`<button class="g" onclick="S.mm=${open?'null':`'${t.id}'`};render()">${open?'Hide':'View'} questions</button>`:''}</div>
-  ${open?`${b.map((q,i)=>`<div class="item" style="cursor:default"><b>${i+1}.</b> ${esc(q.q)} <a href="#" onclick="openMq('${t.id}','${q.id}');return false">✏ edit</a> <a href="#" class="er" onclick="delMq('${t.id}','${q.id}');return false">delete</a>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}${q.exp?`<br><span class="mu">💡 ${esc(q.exp)}</span>`:''}</div>`).join('')}<p><a href="#" class="er" onclick="clearBank('${t.id}');return false">Delete all questions in this module</a></p>`:''}</div>`}).join(''):'<div class="card"><p class="mu">No modules yet. Create topics in the <b>Syllabus</b> tab first – each topic becomes a module here.</p></div>'}
+  ${open?`${b.map((q,i)=>`<div class="item" style="cursor:default"><b>${i+1}.</b> ${esc(q.q)} <a href="#" class="er" onclick="delMq('${t.id}','${q.id}');return false">delete</a>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}${q.exp?`<br><span class="mu">💡 ${esc(q.exp)}</span>`:''}</div>`).join('')}<p><a href="#" class="er" onclick="clearBank('${t.id}');return false">Delete all questions in this module</a></p>`:''}</div>`}).join(''):'<div class="card"><p class="mu">No modules yet. Create topics in the <b>Syllabus</b> tab first – each topic becomes a module here.</p></div>'}
  <div class="card"><div class="row" style="justify-content:space-between"><b>Student attempts</b><select id="mf" style="max-width:220px" onchange="S.mfil=this.value;render()"><option value="">All modules</option>${mods.map(t=>`<option value="${t.id}" ${fil==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
  <div style="overflow-x:auto"><table><tr><th>Student</th><th>Module</th><th>Score</th><th>Date</th></tr>${list.map(a=>`<tr><td>${esc(a.name)} <span class="mu">${esc(handle(unOf(a.uid)||a.un))}</span></td><td>${esc(modName(a.moduleId)||a.moduleName)}</td><td><span class="tag">${a.score}/${a.total} · ${pct(a.score,a.total)}%</span></td><td class="mu">${fmt(a.ts)}</td></tr>`).join('')||'<tr><td colspan="4" class="mu">No attempts yet.</td></tr>'}</table></div></div>`}
 function mockStudent(){const mods=sylList().filter(t=>((mockOf(t.id)||{}).qs||[]).length),att=(S.matt||[]).slice().sort((a,b)=>b.ts-a.ts);
@@ -455,7 +385,19 @@ async function upStu(inp){const f=inp.files[0];if(!f)return;const st=$('#ust');s
   rows.forEach(r=>{const g={};for(const k in r)g[k.trim().toLowerCase()]=String(r[k]).trim();const un=(g.username||'').toLowerCase(),nm=(g.name||'').toLowerCase(),u=stus.find(x=>un&&x.username==un)||stus.find(x=>nm&&x.name.toLowerCase()==nm);
    if(!u){miss.push(g.username||g.name||'(blank)');return}const d={};['phone','email','batch','joined','notes'].forEach(k=>{if(g[k])d[k]=g[k]});if(Object.keys(d).length){b.update(db.doc('users/'+u.id),d);ok++}});
   await b.commit();st.textContent=ok+' student(s) updated.'+(miss.length?' Not found: '+miss.join(', '):'')}catch(e){st.textContent='Error: '+(e.message||e.code||e)}inp.value=''}
-async function saveStu(id){const g=k=>$('#sd_'+k).value.trim();try{await db.doc('users/'+id).update({phone:g('phone'),email:g('email'),batch:g('batch'),joined:g('joined'),notes:g('notes')});S.editStu=null;render()}catch(e){$('#sdm').textContent='Could not save: '+(e.message||e.code)}}
+async function renameUser(u,nu){
+ if(nu.length<3)throw Error('Username must be at least 3 characters');if(nu.includes('@'))throw Error('Username cannot contain “@”');
+ if(S.users.some(x=>x.id!=u.id&&x.username==nu))throw Error('That username is already used by another user');
+ const ae=u.authEmail||(u.username.includes('@')?u.username:u.username+DOM);
+ if(!ae.endsWith(DOM))throw Error('This student logs in with an email address, so the username can’t be changed here.');
+ const ex=await db.doc('usernames/'+nu).get();if(ex.exists&&ex.data().uid!=u.id)throw Error('That username is already used or reserved');
+ const b=db.batch();b.update(db.doc('users/'+u.id),{username:nu,authEmail:ae});b.set(db.doc('usernames/'+nu),{email:ae,uid:u.id});
+ if(!u.username.includes('@'))b.set(db.doc('usernames/'+u.username),{blocked:true,uid:u.id});
+ await b.commit()}
+async function saveStu(id){const g=k=>$('#sd_'+k).value.trim(),u=S.users.find(x=>x.id==id),nu=g('username').toLowerCase().replace(/[^a-z0-9_.@+-]/g,''),m=$('#sdm');
+ try{let renamed=false;if(nu&&nu!=u.username){await renameUser(u,nu);renamed=true}
+  await db.doc('users/'+id).update({phone:g('phone'),email:g('email'),batch:g('batch'),joined:g('joined'),notes:g('notes')});S.editStu=null;render();if(renamed)toast('✅ Username changed','New login username: '+nu)}
+ catch(e){m.textContent='Could not save: '+(e.message||e.code)}}
 /* ---------- syllabus & course progress ---------- */
 const sylList=()=>S.syl.slice().sort((a,b)=>a.ts-b.ts);
 const progOf=u=>((S.prog.find(p=>p.id==u)||{}).done)||{};
@@ -467,25 +409,24 @@ const bar=p=>`<div class="bar"><i style="width:${p}%"></i></div>`;
 const want=(on,f)=>f=='all'||!!on==(f=='done');
 function vis(n,dn,f){return want(dn[n.id],f)||(n.sw||[]).some(w=>want(dn[n.id+'_'+w.id],f))||(n.subs||[]).some(x=>vis(x,dn,f))}
 function detCard(o){const r=(l,v)=>`<div><span>${l}</span>${esc(v)||'–'}</div>`;return`<div class="card"><b>${esc(o.name)}</b> <span class="mu">@${esc(o.username)}</span><div class="det" style="margin-top:8px">${r('Phone',o.phone)}${r('Email',o.email)}${r('Batch / Class',o.batch)}${r('Joined',o.joined)}</div>${o.notes?`<p class="mu">${esc(o.notes)}</p>`:''}</div>`}
-function togT(id){S.openT=S.openT||{};S.openT[id]=!S.openT[id];const e=document.getElementById('tc_'+id);if(e)e.classList.toggle('open',S.openT[id])}
-function progNode(n,o,T,dn,f){if(!vis(n,dn,f))return'';
- return`<div class="pn"><div class="sr">${tk(dn[n.id],n.id,o.id,T)}<span style="flex:1 1 auto"><b>${esc(n.name)}</b></span></div>${(n.sw||[]).filter(w=>want(dn[n.id+'_'+w.id],f)).map(w=>`<div class="sw">${tk(dn[n.id+'_'+w.id],n.id+'_'+w.id,o.id,T)}<span style="color:var(--tx)">🛠 ${esc(w.name)}</span></div>`).join('')}${(n.subs||[]).map(x=>progNode(x,o,T,dn,f)).join('')}</div>`}
-function progBody(o,T){const L=sylList(),c=counts(o.id),d=progOf(o.id),f=S.pf,fb=(k,l)=>`<button class="${f==k?'on':''}" onclick="S.pf='${k}';render()">${l}</button>`,r=(l,v)=>`<div><span>${l}</span>${esc(v)||'–'}</div>`;
- return`<div class="card"><div class="phero"><div class="av">${esc(String(o.name||'?').trim().charAt(0).toUpperCase())}</div><div class="nm"><b>${esc(o.name)}</b><span class="mu">${esc(handle(o.username))}</span></div><div class="pct">${c.p}%</div></div>${bar(c.p)}<div class="chips"><span class="chip c1">✓ Covered ${c.n}</span><span class="chip c2">○ Pending ${c.t-c.n}</span></div><details class="more"><summary>Student details ▾</summary><div class="det">${r('Phone',o.phone)}${r('Email',o.email)}${r('Batch / Class',o.batch)}${r('Joined',o.joined)}</div>${o.notes?`<p class="mu">${esc(o.notes)}</p>`:''}</details></div>
- <div class="seg">${fb('all','All')}${fb('done','Covered')}${fb('pending','Pending')}</div>
- <div class="tg">${L.map(t=>{const tc=counts(o.id,t),body=(t.subs||[]).map(x=>progNode(x,o,T,d,f)).join('');if(f!='all'&&!body)return'';const op=!!(S.openT||(S.openT={}))[t.id],dn=tc.t&&tc.n==tc.t,stt=dn?['d','✓ Completed']:tc.n?['p','In progress']:['n','Not started'];return`<div class="card tc ${op?'open':''}" id="tc_${t.id}"><div class="tc-h" onclick="togT('${t.id}')"><div class="ring ${dn?'d':''}" style="--p:${tc.p}"><span>${tc.p}%</span></div><div class="tc-i"><b>${esc(t.name)}</b><span class="st ${stt[0]}">${stt[1]}</span><span class="mu">${tc.n}/${tc.t} done</span></div><svg class="tc-c" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="tc-b">${body||'<p class="mu">No sub topics added yet.</p>'}</div></div>`}).join('')}</div>${L.length?'':'<p class="mu">The teacher has not created a syllabus yet.</p>'}`}
+function progNode(n,o,T,dn,f,d){if(!vis(n,dn,f))return'';
+ return`<div style="margin-left:${d?20:0}px"><div class="sr">${tk(dn[n.id],n.id,o.id,T)}<span style="flex:1 1 auto"><b>${esc(n.name)}</b></span></div>${(n.sw||[]).filter(w=>want(dn[n.id+'_'+w.id],f)).map(w=>`<div class="sw">${tk(dn[n.id+'_'+w.id],n.id+'_'+w.id,o.id,T)}<span style="color:var(--tx)">🛠 ${esc(w.name)}</span></div>`).join('')}${(n.subs||[]).map(x=>progNode(x,o,T,dn,f,d+1)).join('')}</div>`}
+function progBody(o,T){const L=sylList(),c=counts(o.id),d=progOf(o.id),f=S.pf,fb=(k,l)=>`<button class="${f==k?'':'g'}" onclick="S.pf='${k}';render()">${l}</button>`;
+ return`${detCard(o)}<div class="card"><b>Overall progress</b> <span class="mu">${c.p}%</span>${bar(c.p)}<p style="margin:10px 0 0"><span class="ok"><b>✓ Covered: ${c.n}</b></span> &nbsp; <span class="mu"><b>○ Pending: ${c.t-c.n}</b></span></p></div>
+ <div class="row" style="margin-bottom:12px">${fb('all','All')}${fb('done','Covered')}${fb('pending','Pending')}</div>
+ ${L.map(t=>{const tc=counts(o.id,t),body=(t.subs||[]).map(x=>progNode(x,o,T,d,f,0)).join('');if(f!='all'&&!body)return'';return`<div class="card"><div class="row"><b style="flex:1 1 auto">${esc(t.name)}</b><span class="mu" style="flex:0 0 auto">${tc.n}/${tc.t} · ${tc.p}%</span></div>${bar(tc.p)}${body||'<p class="mu">No sub topics added yet.</p>'}</div>`}).join('')||'<p class="mu">The teacher has not created a syllabus yet.</p>'}`}
 function progView(T){
  if(!T)return progBody(S.user,false);
  const st=S.users.filter(u=>u.role=='student'),cur=st.find(u=>u.id==S.pstu);
- return`<div class="pk"><label for="pstu">Student</label><select id="pstu" onchange="S.pstu=this.value;render()"><option value="">${st.length?'Select a student…':'No students have signed up yet'}</option>${st.map(u=>`<option value="${u.id}" ${cur&&cur.id==u.id?'selected':''}>${esc(u.name)} (${esc(handle(u.username))}) — ${counts(u.id).p}%</option>`).join('')}</select></div>
- ${cur?`<p class="mu" style="margin:0 0 12px">Tap a box to mark it complete (green ✓). Tap again to clear.</p>${progBody(cur,true)}`:'<div class="card"><p class="mu">Select a student from the dropdown to see and update their course progress.</p></div>'}`}
-function sylNode(tid,n,d){return`<div class="item" style="cursor:default;${d?'margin:8px 0 0 14px':''}"><div class="row"><span style="flex:1 1 auto">${d?'↳':'📄'} <b>${esc(n.name)}</b></span><a href="#" style="flex:0 0 auto" onclick="renNode('${tid}','${n.id}');return false">✏ edit</a><a href="#" class="er" style="flex:0 0 auto" onclick="delSub('${tid}','${n.id}');return false">remove</a></div>
- <div style="margin:4px 0">${(n.sw||[]).map(w=>`<span class="tag">🛠 ${esc(w.name)} <a href="#" onclick="renSw('${tid}','${n.id}','${w.id}');return false" title="Edit">✏</a> <a href="#" class="er" onclick="delSw('${tid}','${n.id}','${w.id}');return false">✕</a></span> `).join('')||'<span class="mu">No software added</span>'}</div>
+ return`<div class="grid"><div><p class="mu">Select a student</p>${st.map(u=>`<div class="item ${cur&&cur.id==u.id?'on':''}" onclick="S.pstu='${u.id}';render()">${esc(u.name)} <span class="mu">${esc(handle(u.username))}</span> <span class="tag">${counts(u.id).p}%</span></div>`).join('')||'<p class="mu">No students have signed up yet.</p>'}</div>
+ <div>${cur?`<p class="mu">Tap a box to mark it complete (green ✓). Tap again to clear.</p>${progBody(cur,true)}`:'<div class="card"><p class="mu">Select a student to see and update their course progress.</p></div>'}</div></div>`}
+function sylNode(tid,n,d){return`<div class="item" style="cursor:default;${d?'margin:8px 0 0 14px':''}"><div class="row"><span style="flex:1 1 auto">${d?'↳':'📄'} <b>${esc(n.name)}</b></span><a href="#" style="flex:0 0 auto" onclick="renNode('${tid}','${n.id}');return false">rename</a><a href="#" class="er" style="flex:0 0 auto" onclick="delSub('${tid}','${n.id}');return false">remove</a></div>
+ <div style="margin:4px 0">${(n.sw||[]).map(w=>`<span class="tag">🛠 ${esc(w.name)} <a href="#" class="er" onclick="delSw('${tid}','${n.id}','${w.id}');return false">✕</a></span> `).join('')||'<span class="mu">No software added</span>'}</div>
  <div class="row"><input id="sw_${n.id}" placeholder="Software (comma separate for several)"><button class="g" onclick="addSw('${tid}','${n.id}')">＋ Software</button></div>
  ${(n.subs||[]).map(x=>sylNode(tid,x,d+1)).join('')}
  <div class="row" style="margin-top:8px"><input id="sb_${n.id}" placeholder="New sub topic under “${esc(n.name)}”"><button onclick="addSub('${tid}','${n.id}')">＋ Sub topic</button></div></div>`}
 function sylView(){return`<div class="card"><b>Syllabus</b><p class="mu">Create topics, then sub topics (and sub topics inside sub topics, as deep as needed). Each sub topic can list the software used. Track students under “Course Progress”.</p><div class="row"><input id="tpn" placeholder="New topic name (e.g. SEO)"><button onclick="addTopic()">＋ Add topic</button></div></div>
- ${sylList().map(t=>`<div class="card"><div class="row"><b style="flex:1 1 auto">${esc(t.name)}</b><button class="g" onclick="renTopic('${t.id}')">✏ Edit</button><button class="d" onclick="delDoc('syllabus','${t.id}')">Delete topic</button></div>
+ ${sylList().map(t=>`<div class="card"><div class="row"><b style="flex:1 1 auto">${esc(t.name)}</b><button class="g" onclick="renTopic('${t.id}')">Rename</button><button class="d" onclick="delDoc('syllabus','${t.id}')">Delete topic</button></div>
  ${(t.subs||[]).map(x=>sylNode(t.id,x,0)).join('')}
  <div class="row" style="margin-top:8px"><input id="sb_${t.id}" placeholder="New sub topic"><button onclick="addSub('${t.id}','')">＋ Sub topic</button></div></div>`).join('')}`}
 function fnd(list,id){for(let i=0;i<list.length;i++){if(list[i].id==id)return{arr:list,i,n:list[i]};const r=fnd(list[i].subs||[],id);if(r)return r}return null}
@@ -496,7 +437,6 @@ function renNode(tid,nid){const r=fnd(S.syl.find(x=>x.id==tid).subs||[],nid),n=(
 function addSub(tid,pid){const n=$('#sb_'+(pid||tid)).value.trim();if(n)upT(tid,c=>{const x={id:uid(),name:n,sw:[],subs:[]};if(pid){const p=fnd(c,pid).n;p.subs=p.subs||[];p.subs.push(x)}else c.push(x)})}
 function delSub(tid,nid){if(confirm('Remove this sub topic and everything inside it?'))upT(tid,c=>{const r=fnd(c,nid);r.arr.splice(r.i,1)})}
 function addSw(tid,nid){const v=$('#sw_'+nid).value.split(',').map(x=>x.trim()).filter(Boolean);if(v.length)upT(tid,c=>{const x=fnd(c,nid).n;x.sw=x.sw||[];v.forEach(n=>x.sw.push({id:uid(),name:n}))})}
-function renSw(tid,nid,wid){const r=fnd(S.syl.find(x=>x.id==tid).subs||[],nid),w=r&&(r.n.sw||[]).find(x=>x.id==wid);if(!w)return;const n=(prompt('Software name',w.name)||'').trim();if(n)upT(tid,c=>{fnd(c,nid).n.sw.find(x=>x.id==wid).name=n})}
 function delSw(tid,nid,wid){upT(tid,c=>{const x=fnd(c,nid).n;x.sw=x.sw.filter(w=>w.id!=wid)})}
 async function delDoc(c,id){if(!confirm('Delete this?'))return;await db.doc(c+'/'+id).delete();if(c=='exams')await db.doc('examKeys/'+id).delete()}
 async function addSection(inp){const f=inp.files[0];if(!f)return;const st=$('#est'),name=$('#secn').value.trim()||'Section '+(S.draft.secs.length+1),type=$('#sect').value,mk=parseFloat($('#secm').value);st.textContent='Reading…';
@@ -511,7 +451,6 @@ function tExams(){const d=S.draft;
  return`<div class="card">${!d?`<b>Exam papers</b><p class="mu">Build an exam from sections, e.g. Section 1 – Multiple choice, Section 2 – Paragraph. Each section is uploaded separately from a Word, Excel or PDF file.</p><button onclick="S.draft={title:'',secs:[]};S.note='';render()">＋ Create new exam</button>`:`<b>New exam</b><input placeholder="Exam title" value="${esc(d.title)}" oninput="S.draft.title=this.value">
  <div class="row"><div><span class="mu">Exam date (optional – can be set later)</span><input type="date" value="${esc(d.date||'')}" oninput="S.draft.date=this.value"></div><div><span class="mu">Opens at</span><input type="time" value="${esc(d.st||'00:00')}" oninput="S.draft.st=this.value"></div><div><span class="mu">Closes at</span><input type="time" value="${esc(d.en||'23:59')}" oninput="S.draft.en=this.value"></div></div>
  <p class="mu">Students can see and take the exam only on this date, between the opening and closing time.</p>
- <b>Who takes this exam?</b>${stuPick('dr',d.to,d.all===true)}
  ${d.secs.map((s,i)=>`<div class="item" style="cursor:default"><b>${esc(s.name)}</b> <span class="tag">${s.type=='mcq'?'Multiple choice':'Paragraph'}</span> ${s.qs.length} questions · ${s.qs.reduce((t,q)=>t+q.marks,0)} marks <a href="#" class="er" onclick="S.draft.secs.splice(${i},1);render();return false">remove</a>
  <details><summary class="mu">Preview</summary>${s.qs.map((q,j)=>`<p>${j+1}. ${esc(q.q)} <span class="tag">${q.marks}m</span>${q.opts.map((o,k)=>`<br><span class="${k==q.ai?'ok':'mu'}">${'ABCDE'[k]}) ${esc(o)}</span>`).join('')}</p>`).join('')}</details></div>`).join('')}
  <div class="card" style="background:var(--bg)"><b>Add section ${d.secs.length+1}</b>
@@ -520,8 +459,8 @@ function tExams(){const d=S.draft;
  <details><summary class="mu">Expected file format</summary><p class="mu">Word/PDF: <code>1. Question text [2 marks]</code>; for multiple choice add options <code>A) …</code> to <code>D) …</code> and <code>Answer: B</code>.<br>Excel columns: Question, A, B, C, D, Answer, Marks (paragraph sections only need Question and Marks).</p></details></div>
  <button ${d.secs.length?'':'disabled'} onclick="saveExam()">${d.date?'Publish exam for '+esc(d.date):'Save exam (set date later)'}</button> <button class="g" onclick="S.draft=null;render()">Discard</button>`}</div>
  ${S.exams.sort((a,b)=>b.ts-a.ts).map(e=>{const ss=S.subs.filter(s=>s.examId==e.id);return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.qs.length} questions · ${e.qs.reduce((s,q)=>s+q.marks,0)} marks</span>
- <p class="mu" style="margin:4px 0">${schedTxt(e)}</p><p class="mu" style="margin:4px 0">${toTxt(e)}</p><p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
- <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="openEditExam('${e.id}')">✏ Edit</button> <button class="g" onclick="openDate('${e.id}')">📅 ${e.openAt?'Change date':'Set date'}</button> <button class="g" onclick="openExStu('${e.id}')">👥 Students</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delExam('${e.id}')">Delete</button></div>`}).join('')}`}
+ <p class="mu" style="margin:4px 0">${schedTxt(e)}</p><p>${ss.length} submitted · ${ss.filter(s=>s.checked).length} checked · Marks: ${e.published?'<span class="ok">published</span>':'<span class="mu">not published</span>'}</p>
+ <button onclick="S.open={e:'${e.id}'};render()">Check answers</button> <button class="g" onclick="openDate('${e.id}')">📅 ${e.openAt?'Change date':'Set date'}</button> <button class="g" onclick="pubMarks('${e.id}',${!e.published})">${e.published?'Unpublish marks':'Publish marks'}</button> <button class="d" onclick="delExam('${e.id}')">Delete</button></div>`}).join('')}`}
 const tm=t=>t&&t.toMillis?t.toMillis():(t&&t.seconds?t.seconds*1000:0);
 const p2=n=>String(n).padStart(2,'0'),ymd=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())},hm=ms=>{const d=new Date(ms);return p2(d.getHours())+':'+p2(d.getMinutes())};
 const fmtD=ms=>new Date(ms).toLocaleDateString([],{weekday:'short',day:'numeric',month:'short',year:'numeric'}),fmtT=ms=>new Date(ms).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -531,48 +470,15 @@ function winTxt(o,c){const whole=hm(o)=='00:00'&&hm(c)=='23:59';return'📅 '+fm
 function schedTxt(e){const o=tm(e.openAt),c=tm(e.closeAt);if(!o)return'⚠️ No date set – students can’t see this exam yet';const n=Date.now();return winTxt(o,c)+' '+(n<o?'<span class="tag">Upcoming</span>':n<=c?'<span class="tag" style="background:var(--ok);color:#fff">Open now</span>':'<span class="tag">Closed</span>')}
 async function saveExam(){const d=S.draft,ref=db.collection('exams').doc(),b=db.batch(),qs=[];d.secs.forEach(s=>s.qs.forEach(q=>qs.push({...q,sec:s.name})));
  const w=d.date?winOf(d.date,d.st,d.en):null;if(d.date&&!w)return alert('The closing time must be after the opening time.');
- const to=d.all===true?null:(d.to||[]);if(to&&!to.length)return alert('Select the students for this exam, or tick “All students”.');
- const title=d.title.trim()||'Untitled exam',max=qs.reduce((t,q)=>t+q.marks,0),doc={title,qs:qs.map(({ai,exp,...q})=>q),ts:Date.now(),published:false,...(to?{to}:{})};
- if(w){doc.openAt=TS(w.openAt);doc.closeAt=TS(w.closeAt);b.set(db.doc('examMeta/'+ref.id),{title,n:qs.length,max,openAt:doc.openAt,closeAt:doc.closeAt,ts:doc.ts,...(to?{to}:{})})}
+ const title=d.title.trim()||'Untitled exam',max=qs.reduce((t,q)=>t+q.marks,0),doc={title,qs:qs.map(({ai,exp,...q})=>q),ts:Date.now(),published:false};
+ if(w){doc.openAt=TS(w.openAt);doc.closeAt=TS(w.closeAt);b.set(db.doc('examMeta/'+ref.id),{title,n:qs.length,max,openAt:doc.openAt,closeAt:doc.closeAt,ts:doc.ts})}
  b.set(ref,doc);b.set(db.doc('examKeys/'+ref.id),{ai:qs.map(q=>q.ai)});
  try{await b.commit();S.draft=null;render()}catch(e){alert('Could not save: '+(e.message||e.code))}}
-
-/* ---------- choose which students get an exam ---------- */
-const forMe=e=>!e.to||e.to.includes(S.user.id);
-function stuPick(pre,sel,all){const st=(S.users||[]).filter(u=>u.role=='student').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));sel=sel||[];
- return`<div class="spk" id="${pre}_pk"><label class="spk-all"><input type="checkbox" id="${pre}_all" ${all?'checked':''} onchange="spkAll('${pre}')"><b>All students</b> <span class="mu">(${st.length})</span></label>
- <input class="spk-s" placeholder="🔍 Search student…" oninput="spkFilter('${pre}',this.value)">
- <div class="spk-b"><button type="button" class="g" onclick="spkSet('${pre}',true)">Select shown</button><button type="button" class="g" onclick="spkSet('${pre}',false)">Clear</button></div>
- <div class="spk-l ${all?'off':''}" id="${pre}_l">${st.map(u=>`<label class="spk-i" data-n="${esc(((u.name||'')+' '+(u.username||'')).toLowerCase())}"><input type="checkbox" value="${u.id}" ${sel.includes(u.id)?'checked':''} onchange="spkChg('${pre}')"><span>${esc(u.name)} <span class="mu">${esc(handle(u.username))}</span></span></label>`).join('')||'<p class="mu">No students have been added yet.</p>'}</div>
- <div class="mu" id="${pre}_c" style="margin-top:6px">${all?'Every student will get this exam':sel.length+' selected'}</div></div>`}
-function spkRead(pre){return{all:$('#'+pre+'_all').checked,to:[...document.querySelectorAll('#'+pre+'_l input:checked')].map(x=>x.value)}}
-function spkChg(pre){const r=spkRead(pre),c=$('#'+pre+'_c');if(c)c.textContent=r.all?'Every student will get this exam':r.to.length+' selected';if(pre=='dr'&&S.draft){S.draft.all=r.all;S.draft.to=r.to}}
-function spkAll(pre){$('#'+pre+'_l').classList.toggle('off',$('#'+pre+'_all').checked);spkChg(pre)}
-function spkFilter(pre,q){q=q.toLowerCase().trim();document.querySelectorAll('#'+pre+'_l .spk-i').forEach(l=>l.style.display=l.dataset.n.includes(q)?'':'none')}
-function spkSet(pre,v){document.querySelectorAll('#'+pre+'_l .spk-i').forEach(l=>{if(l.style.display!='none')l.querySelector('input').checked=v});spkChg(pre)}
-function toTxt(e){if(!e.to)return'👥 All students';const n=e.to.map(id=>(S.users.find(u=>u.id==id)||{}).name).filter(Boolean);return'👥 '+e.to.length+' student'+(e.to.length==1?'':'s')+(n.length&&n.length<=3?': '+n.map(esc).join(', '):'')}
-function openExStu(id){const e=S.exams.find(x=>x.id==id);if(!e)return;
- mkModal('exStuBox',`<div class="box"><h3>👥 Students for this exam</h3><p class="mu"><b style="color:var(--tx)">${esc(e.title)}</b><br>Only the selected students will see this exam and its reminders.</p>${stuPick('md',e.to||[],!e.to)}<p class="er" id="sm"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('exStuBox')">Cancel</button><button onclick="saveExStu('${id}')">Save</button></div></div>`)}
-async function saveExStu(id){const e=S.exams.find(x=>x.id==id),r=spkRead('md');if(!r.all&&!r.to.length)return $('#sm').textContent='Select at least one student, or tick “All students”';
- const v=r.all?firebase.firestore.FieldValue.delete():r.to,b=db.batch();b.update(db.doc('exams/'+id),{to:v});if(e&&e.openAt)b.set(db.doc('examMeta/'+id),{to:v},{merge:true});
- try{await b.commit();closeM('exStuBox');toast('👥 Students saved',r.all?'All students':r.to.length+' selected')}catch(er){$('#sm').textContent='Could not save: '+(er.message||er.code)}}
-
-/* ---------- edit an existing exam ---------- */
-function openEditExam(id){const e=S.exams.find(x=>x.id==id);if(!e)return;const ky=(S.keys||{})[id];if(!ky)return alert('Still loading the answer key – please try again in a moment.');const ai=ky.ai||[],ns=S.subs.filter(x=>x.examId==id).length;
- mkModal('exEdit',`<div class="box" style="max-width:720px"><h3>✏ Edit exam</h3>${ns?`<p class="mu">⚠️ ${ns} submission${ns>1?'s':''} already received. Changing questions or correct answers does not re-grade work that has already been checked.</p>`:''}<span class="mu">Exam title *</span><input id="ee_t" maxlength="120" value="${esc(e.title)}">
- ${e.qs.map((q,i)=>`<div class="item" style="cursor:default">${q.sec?`<span class="tag">${esc(q.sec)}</span> `:''}<b>Question ${i+1}</b><textarea id="eq_${i}" rows="2">${esc(q.q)}</textarea><div class="row"><div><span class="mu">Marks</span><input id="em_${i}" type="number" min="0" step="0.5" value="${q.marks}"></div>${(q.opts&&q.opts.length)?`<div><span class="mu">Correct answer</span><select id="ec_${i}">${q.opts.map((o,k)=>`<option value="${k}" ${ai[i]==k?'selected':''}>${'ABCDE'[k]}</option>`).join('')}</select></div>`:''}</div>${(q.opts||[]).map((o,k)=>`<div class="row" style="flex-wrap:nowrap;align-items:center"><b style="flex:none">${'ABCDE'[k]}</b><input id="eo_${i}_${k}" value="${esc(o)}"></div>`).join('')}</div>`).join('')}
- <p class="er" id="eem"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('exEdit')">Cancel</button><button onclick="saveEditExam('${id}')">Save changes</button></div></div>`,true)}
-async function saveEditExam(id){const e=S.exams.find(x=>x.id==id),m=$('#eem'),title=$('#ee_t').value.trim().slice(0,120);if(!e)return;if(!title)return m.textContent='Enter the exam title';
- const ai=[...(((S.keys||{})[id]||{}).ai||[])],qs=e.qs.map((q,i)=>{const mk=parseFloat($('#em_'+i).value),o={...q,q:$('#eq_'+i).value.trim().slice(0,1000),marks:isNaN(mk)||mk<0?q.marks:mk};
-  if(q.opts&&q.opts.length){o.opts=q.opts.map((x,k)=>($('#eo_'+i+'_'+k).value.trim()||x).slice(0,300));ai[i]=parseInt($('#ec_'+i).value)}return o});
- if(qs.some(q=>!q.q))return m.textContent='A question cannot be empty';
- const max=qs.reduce((t,q)=>t+q.marks,0),b=db.batch();b.update(db.doc('exams/'+id),{title,qs});b.set(db.doc('examKeys/'+id),{ai},{merge:true});if(e.openAt)b.set(db.doc('examMeta/'+id),{title,n:qs.length,max},{merge:true});
- try{await b.commit();closeM('exEdit');toast('✅ Exam updated',title)}catch(er){m.textContent='Could not save: '+(er.message||er.code)}}
 function openDate(id){const e=S.exams.find(x=>x.id==id);if(!e)return;const o=tm(e.openAt),c=tm(e.closeAt);
  mkModal('dateBox',`<div class="box"><h3>📅 Exam date</h3><p class="mu"><b style="color:var(--tx)">${esc(e.title)}</b><br>Students can see and take this exam only on this date, between the opening and closing time.</p><span class="mu">Date *</span><input id="dd" type="date" value="${o?ymd(o):''}"><div class="row"><div><span class="mu">Opens at</span><input id="ds" type="time" value="${o?hm(o):'00:00'}"></div><div><span class="mu">Closes at</span><input id="de" type="time" value="${c?hm(c):'23:59'}"></div></div><p class="mu">Leave 00:00 – 23:59 for the whole day.</p><p class="er" id="dm"></p><div class="row" style="justify-content:flex-end">${o?`<button class="g" onclick="clearDate('${id}')">Remove date</button>`:''}<button class="g" onclick="closeM('dateBox')">Cancel</button><button onclick="saveDate('${id}')">Save date</button></div></div>`)}
 async function saveDate(id){const e=S.exams.find(x=>x.id==id),m=$('#dm'),dd=$('#dd').value;if(!dd)return m.textContent='Choose the exam date';const w=winOf(dd,$('#ds').value,$('#de').value);if(!w)return m.textContent='The closing time must be after the opening time';
  if(w.closeAt<new Date()&&!confirm('This date has already passed, so students will see the exam as closed. Continue?'))return;
- const b=db.batch(),o=TS(w.openAt),c=TS(w.closeAt);b.update(db.doc('exams/'+id),{openAt:o,closeAt:c});b.set(db.doc('examMeta/'+id),{title:e.title,n:e.qs.length,max:e.qs.reduce((t,q)=>t+q.marks,0),openAt:o,closeAt:c,ts:e.ts,...(e.to?{to:e.to}:{})});
+ const b=db.batch(),o=TS(w.openAt),c=TS(w.closeAt);b.update(db.doc('exams/'+id),{openAt:o,closeAt:c});b.set(db.doc('examMeta/'+id),{title:e.title,n:e.qs.length,max:e.qs.reduce((t,q)=>t+q.marks,0),openAt:o,closeAt:c,ts:e.ts});
  try{await b.commit();closeM('dateBox');toast('📅 Date saved',winTxt(w.openAt.getTime(),w.closeAt.getTime()).replace('📅 ',''))}catch(er){m.textContent='Could not save: '+(er.message||er.code)}}
 async function clearDate(id){if(!confirm('Remove the date? Students will no longer see this exam until you set a new date.'))return;const b=db.batch();b.update(db.doc('exams/'+id),{openAt:firebase.firestore.FieldValue.delete(),closeAt:firebase.firestore.FieldValue.delete()});b.delete(db.doc('examMeta/'+id));try{await b.commit();closeM('dateBox')}catch(e){alert('Could not remove: '+(e.message||e.code))}}
 async function delExam(id){const e=S.exams.find(x=>x.id==id);if(!confirm('Delete “'+(e?e.title:'this exam')+'”? Submissions already received are kept.'))return;const b=db.batch();['exams','examKeys','examMeta'].forEach(c=>b.delete(db.doc(c+'/'+id)));try{await b.commit()}catch(er){alert('Could not delete: '+(er.message||er.code))}}
@@ -590,32 +496,14 @@ async function saveMarks(id){const s=S.subs.find(x=>x.id==id),e=S.exams.find(x=>
  const marks=ins.map((x,i)=>Math.min(e.qs[i].marks,Math.max(0,parseFloat(x.value)||0))),d={marks,total:marks.reduce((a,b)=>a+b,0),max:e.qs.reduce((a,q)=>a+q.marks,0),checked:true},b=db.batch();
  b.update(db.doc('submissions/'+id),d);if(e.published)b.set(db.doc('results/'+id),{examId:e.id,uid:s.uid,...d});await b.commit();$('#mm').textContent='Saved ✓'}
 S.eq=S.eq||{};
-/* ---------- exam notifications & reminders (students) ---------- */
-function exRel(t){const m=Math.round((t-Date.now())/6e4);if(m<=0)return'now';if(m<60)return'in '+m+' min';const h=Math.round(m/60);if(h<24)return'in '+h+' hour'+(h>1?'s':'');const d=Math.round(h/24);return d==1?'tomorrow':'in '+d+' days'}
-function exChip(e,st,done){const o=tm(e.openAt),c=tm(e.closeAt),n=Date.now();if(!o)return'';
- const cls=n>c?'over':n>=o?'live':o-n<=864e5?'soon':'',txt=n>c?'closed':n>=o?'open now · closes '+fmtT(c):'opens '+exRel(o),nw=st&&st['v'+e.id]!=o&&n<=c&&!done;
- return`<div class="exd ${cls}"><span>${winTxt(o,c)}</span> · <b>${txt}</b>${nw?' <span class="tag">🆕 New</span>':''}</div>`}
-const exKey=()=>'lms_ex_'+S.user.id;
-function exGet(){try{return JSON.parse(localStorage.getItem(exKey()))||{}}catch(e){return{}}}
-function exSet(o){try{localStorage.setItem(exKey(),JSON.stringify(o))}catch(e){}}
-function exCheck(){if(!S.user||S.user.role!='student'||!S.exReady)return;const st=exGet(),now=Date.now(),go=()=>{S.tab='exams';S.open=null;render()};
- (S.exams||[]).forEach(e=>{const o=tm(e.openAt),c=tm(e.closeAt);if(!o||!forMe(e))return;
-  const done=(S.sent||[]).some(x=>x.examId==e.id)||(S.results||[]).some(x=>x.examId==e.id),k='n'+e.id,left=o-now,r24='r24_'+e.id+'_'+o,r1='r1_'+e.id+'_'+o,when=winTxt(o,c).replace('📅 ','');
-  if(st[k]!=o){const first=st[k]==null;st[k]=o;if(c>now&&!done){const t=left<=0?'📝 Exam open now':first?'📅 New exam scheduled':'📅 Exam date changed',b=e.title+' · '+when;toast(t,b,go);osNotify(t,b);if(left<=864e5)st[r24]=1;if(left<=36e5)st[r1]=1}return}
-  if(done||left<=0)return;
-  if(left<=36e5&&!st[r1]){st[r1]=st[r24]=1;const b=e.title+' opens '+exRel(o)+' · '+when;toast('⏰ Exam reminder',b,go);osNotify('⏰ Exam reminder',b)}
-  else if(left<=864e5&&left>36e5&&!st[r24]){st[r24]=1;const b=e.title+' opens '+exRel(o)+' · '+when;toast('⏰ Exam reminder',b,go);osNotify('⏰ Exam reminder',b)}});
- exSet(st)}
-function exViewed(){const s=exGet();(S.exams||[]).forEach(x=>{const o=tm(x.openAt);if(o)s['v'+x.id]=o});exSet(s)}
-if(!window._exTimer){window._exTimer=setInterval(exCheck,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)exCheck()})}
 async function openMarks(rid,eid){try{if(!S.eq[eid]){const d=await db.doc('exams/'+eid).get();if(!d.exists)throw Error('Exam not found');S.eq[eid]={id:eid,...d.data()}}S.open=rid;render()}catch(e){alert('Could not load the mark list: '+(e.message||e.code))}}
-function sExams(){const my=S.results,now=Date.now(),st=exGet();setTimeout(exViewed,1500);
+function sExams(){const my=S.results,now=Date.now();
  if(S.open){const s=my.find(x=>x.id==S.open),e=s&&S.eq[s.examId];if(!e)return'<button class="g" onclick="S.open=null;render()">← Back</button><p class="mu">Loading…</p>';
   return`<button class="g" onclick="S.open=null;render()">← Back</button><div class="card"><b>${esc(e.title)} – Mark list</b><table><tr><th>#</th><th>Question</th><th>Marks</th></tr>${e.qs.map((q,i)=>`<tr><td>${i+1}</td><td>${esc(q.q)}</td><td>${s.marks?.[i]??0} / ${q.marks}</td></tr>`).join('')}<tr><th></th><th>Total</th><th>${s.total} / ${s.max}</th></tr></table></div>`}
  const rank=e=>{const o=tm(e.openAt),c=tm(e.closeAt);return now<o?[1,o]:now<=c?[0,0]:[2,-c]};
- return S.exams.filter(e=>tm(e.openAt)&&forMe(e)).sort((a,b)=>{const x=rank(a),y=rank(b);return x[0]-y[0]||x[1]-y[1]}).map(e=>{const r=my.find(x=>x.examId==e.id),sent=S.sent.some(x=>x.examId==e.id),o=tm(e.openAt),c=tm(e.closeAt);
+ return S.exams.filter(e=>tm(e.openAt)).sort((a,b)=>{const x=rank(a),y=rank(b);return x[0]-y[0]||x[1]-y[1]}).map(e=>{const r=my.find(x=>x.examId==e.id),sent=S.sent.some(x=>x.examId==e.id),o=tm(e.openAt),c=tm(e.closeAt);
   const act=r?`<button onclick="openMarks('${r.id}','${e.id}')">View marks</button>`:sent?'<span class="tag">Submitted – awaiting results</span>':now<o?`<span class="tag">🔒 Opens ${fmtD(o)}, ${fmtT(o)}</span>`:now<=c?`<button onclick="startExam('${e.id}')">Start exam</button>`:'<span class="er">Closed – not submitted</span>';
-  return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.n} questions · ${e.max} marks</span>${exChip(e,st,r||sent)}<p style="margin:6px 0 0">${act}</p></div>`}).join('')||'<div class="card"><p class="mu">No exams are assigned to you right now. Your exam appears here on the date your teacher sets.</p></div>'}
+  return`<div class="card"><b>${esc(e.title)}</b> <span class="mu">${e.n} questions · ${e.max} marks</span><p class="mu" style="margin:4px 0">${winTxt(o,c)}</p><p style="margin:6px 0 0">${act}</p></div>`}).join('')||'<div class="card"><p class="mu">No exams are scheduled right now. Your exam appears here on the date your teacher sets.</p></div>'}
 async function submitExam(auto){if(!S.taking)return;const{e,ans}=S.taking,un=ans.filter(a=>a===-1||a==='').length;
  if(!auto&&!confirm((un?un+' question(s) unanswered. ':'')+'Submit now? You cannot change or view your answers afterwards.'))return;
  const id=e.id+'_'+S.user.id,b=db.batch();b.set(db.doc('submissions/'+id),{examId:e.id,uid:S.user.id,name:S.user.name,un:S.user.username||'',answers:ans,marks:null,checked:false,ts:Date.now()});b.set(db.doc('sent/'+id),{examId:e.id,uid:S.user.id});
@@ -656,29 +544,21 @@ function emb(u){let m;
  if(/facebook\.com|fb\.watch/.test(u))return'https://www.facebook.com/plugins/video.php?show_text=false&href='+encodeURIComponent(u);
  if(m=u.match(/instagram\.com\/(p|reel|tv)\/([\w-]+)/))return'https://www.instagram.com/'+m[1]+'/'+m[2]+'/embed';return u}
 const nat=(a,b)=>String(a.title).localeCompare(String(b.title),undefined,{numeric:true,sensitivity:'base'});
-const topicOf=m=>('topic' in m)?String(m.topic||'').trim():String(m.moduleName||(m.moduleId&&modName(m.moduleId))||'').trim();
-function matGroups(k){const map=new Map();S.mats.filter(m=>m.type==k).forEach(m=>{const t=topicOf(m),key=t.toLowerCase();if(!map.has(key))map.set(key,{id:key,name:t||'General',items:[]});map.get(key).items.push(m)});
- const g=[...map.values()];g.forEach(x=>x.items.sort(nat));g.sort((x,y)=>!x.id?1:!y.id?-1:x.name.localeCompare(y.name,undefined,{numeric:true,sensitivity:'base'}));return g}
-const topicDL=()=>`<datalist id="topiclist">${[...new Set(S.mats.map(topicOf).filter(Boolean))].sort().map(t=>`<option value="${esc(t)}">`).join('')}</datalist>`;
-function editMat(id){const m=S.mats.find(x=>x.id==id);if(!m)return;
- mkModal('matEd',`<div class="box"><h3>✏ Edit ${m.type=='ebook'?'e-book':'video'}</h3><span class="mu">Title *</span><input id="me_t" maxlength="120" value="${esc(m.title)}"><span class="mu">Topic (type any name – it does not have to match the syllabus)</span><input id="me_p" list="topiclist" maxlength="80" value="${esc(topicOf(m))}" placeholder="e.g. SEO basics">${m.path?'':`<span class="mu">Link</span><input id="me_u" value="${esc(m.url||'')}">`}<p class="er" id="mem"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="closeM('matEd')">Cancel</button><button onclick="saveEditMat('${id}')">Save</button></div></div>`,true)}
-async function saveEditMat(id){const m=S.mats.find(x=>x.id==id),t=$('#me_t').value.trim(),p=$('#me_p').value.trim().slice(0,80),ue=$('#me_u'),er=$('#mem');if(!t)return er.textContent='Enter a title';
- const o={title:t.slice(0,120),topic:p};if(ue){const u=normUrl(ue.value);if(!u)return er.textContent='Paste a valid link (starting with https://)';o.url=u}
- try{await db.doc('materials/'+id).update(o);closeM('matEd')}catch(e){er.textContent='Could not save: '+(e.message||e.code)}}
+function matGroups(k){const mods=sylList(),all=S.mats.filter(m=>m.type==k),ids=new Set(mods.map(x=>x.id)),g=mods.map(x=>({id:x.id,name:x.name,items:all.filter(m=>m.moduleId==x.id).sort(nat)})).filter(x=>x.items.length),rest=all.filter(m=>!ids.has(m.moduleId)).sort(nat);if(rest.length)g.push({id:'',name:'General (no module)',items:rest});return g}
 const modOpts=sel=>`<option value="">General (no module)</option>${sylList().map(t=>`<option value="${t.id}" ${sel==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}`;
 async function setMod(id,v){try{await db.doc('materials/'+id).update({moduleId:v,moduleName:v?modName(v):''})}catch(e){alert('Could not move: '+(e.message||e.code))}}
 function openMat(id){S.mat=id;render();if(innerWidth<=760)setTimeout(()=>{const e=$('#matv');if(e)e.scrollIntoView({behavior:'smooth',block:'start'})},50)}
 function matView(T){const k=S.tab=='ebooks'?'ebook':'video',G=matGroups(k),L=G.flatMap(g=>g.items),cur=L.find(m=>m.id==S.mat)||L[0];
- return`${T?topicDL():''}${T?(USE_STORAGE?`<div class="card"><b>Add ${k=='ebook'?'e-book':'video'}</b><p class="mu">Upload the file straight from your phone or computer – no Google Drive needed. It is stored in your Firebase Storage and students can open it in the app.</p><button onclick="pickMat('${k}')">⬆ Upload ${k=='ebook'?'PDF / e-book':'video'}</button>
- <details style="margin-top:10px"><summary class="mu">Or add a link instead (${k=='ebook'?'PDF link, Google Drive…':'YouTube, Facebook, Instagram…'})</summary><div class="row"><input id="mt" placeholder="Title"><input id="mm" list="topiclist" maxlength="80" placeholder="Topic (optional)"><input id="mu" placeholder="${k=='ebook'?'PDF link (Google Drive share link or any PDF URL)':'YouTube / Facebook / Instagram URL'}"></div><button onclick="addMat('${k}')">Add link</button> <span class="mu" id="mst"></span></details></div>`:`<div class="card"><b>Add ${k=='ebook'?'e-book folder / PDF':'video folder / link'}</b>
+ return`${T?(USE_STORAGE?`<div class="card"><b>Add ${k=='ebook'?'e-book':'video'}</b><p class="mu">Upload the file straight from your phone or computer – no Google Drive needed. It is stored in your Firebase Storage and students can open it in the app.</p><button onclick="pickMat('${k}')">⬆ Upload ${k=='ebook'?'PDF / e-book':'video'}</button>
+ <details style="margin-top:10px"><summary class="mu">Or add a link instead (${k=='ebook'?'PDF link, Google Drive…':'YouTube, Facebook, Instagram…'})</summary><div class="row"><input id="mt" placeholder="Title"><input id="mu" placeholder="${k=='ebook'?'PDF link (Google Drive share link or any PDF URL)':'YouTube / Facebook / Instagram URL'}"></div><button onclick="addMat('${k}')">Add link</button> <span class="mu" id="mst"></span></details></div>`:`<div class="card"><b>Add ${k=='ebook'?'e-book folder / PDF':'video folder / link'}</b>
  <p class="mu">Paste your <b>Google Drive folder link</b>${k=='video'?' (or a YouTube link)':''} – students then see every file in it right inside the app, with no access requests.</p>
- <div class="row"><input id="mm" list="topiclist" maxlength="80" placeholder="Topic (type any name)"><input id="mt" placeholder="Title (e.g. Notes, Video 1)"><input id="mu" placeholder="Google Drive folder / file link${k=='video'?' or YouTube':''}"></div><button onclick="addMat('${k}')">Add</button> <span class="mu" id="mst"></span>
+ <div class="row"><select id="mm" onchange="S.mmsel=this.value">${modOpts(S.mmsel)}</select><input id="mt" placeholder="Title (e.g. Notes, Video 1)"><input id="mu" placeholder="Google Drive folder / file link${k=='video'?' or YouTube':''}"></div>${sylList().length?'':'<p class="mu">Tip: create modules in the <b>Syllabus</b> tab first, then pick one here so items are grouped by module.</p>'}<button onclick="addMat('${k}')">Add</button> <span class="mu" id="mst"></span>
  <details style="margin-top:10px"><summary class="mu">One-time Google Drive setting (needed so students never have to request access)</summary><ol class="mu" style="margin:6px 0 0;padding-left:20px"><li>Open Google Drive, right-click the folder → <b>Share</b>.</li><li>Under <b>General access</b> choose <b>Anyone with the link</b>, role <b>Viewer</b>.</li><li>Click <b>Copy link</b> and paste it above. Files you add to that folder later appear automatically.</li></ol></details></div>`):''}
- <div class="grid"><div>${G.map(g=>`<h4 class="mh" style="margin-top:0">📚 ${esc(g.name)} · ${g.items.length}</h4>${g.items.map(m=>`<div class="item ${cur&&cur.id==m.id?'on':''}" onclick="openMat('${m.id}')">${isFolder(m.url)?'📁':k=='ebook'?'📘':'🎬'} ${esc(m.title)}${T?` <a href="#" onclick="event.stopPropagation();editMat('${m.id}');return false" title="Edit">✏</a> <a href="#" class="er" onclick="event.stopPropagation();delMat('${m.id}');return false">✕</a>`:''}</div>`).join('')}`).join('')||'<p class="mu">Nothing added yet.</p>'}</div>
- <div class="card" id="matv">${cur?`<b>${esc(cur.title)}</b>${T?` <button class="g" style="padding:4px 12px;font-size:13px" onclick="editMat('${cur.id}')">✏ Edit</button>`:''}${topicOf(cur)?`<div class="mu">📚 ${esc(topicOf(cur))}</div>`:''}<br>${matViewer(cur,k)}`:'<p class="mu">Select an item to view it here.</p>'}</div></div>`}
+ <div class="grid"><div>${G.map(g=>`<h4 class="mh" style="margin-top:0">📚 ${esc(g.name)} · ${g.items.length}</h4>${g.items.map(m=>`<div class="item ${cur&&cur.id==m.id?'on':''}" onclick="openMat('${m.id}')">${isFolder(m.url)?'📁':k=='ebook'?'📘':'🎬'} ${esc(m.title)}${T?` <a href="#" class="er" onclick="event.stopPropagation();delMat('${m.id}');return false">✕</a>`:''}</div>`).join('')}`).join('')||'<p class="mu">Nothing added yet.</p>'}</div>
+ <div class="card" id="matv">${cur?`<b>${esc(cur.title)}</b>${(cur.moduleId?`<div class="mu">📚 ${esc(modName(cur.moduleId))}</div>`:'')}<br>${matViewer(cur,k)}`:'<p class="mu">Select an item to view it here.</p>'}</div></div>`}
 async function addMat(type){const t=$('#mt').value.trim(),u=normUrl($('#mu').value),st=$('#mst');
  try{if(!t)return st.textContent='Enter a title';if(!u)return st.textContent='Paste a valid link (starting with https://)';
-  const tp=(($('#mm')||{}).value||'').trim().slice(0,80);await db.collection('materials').add({type,title:t.slice(0,120),url:u,topic:tp,ts:Date.now()});
+  const mid=($('#mm')||{}).value||'';await db.collection('materials').add({type,title:t.slice(0,120),url:u,moduleId:mid,moduleName:mid?modName(mid):'',ts:Date.now()});
   st.textContent=/drive\.google\.com/.test(u)?'Added. Make sure the Drive folder/file is shared as “Anyone with the link – Viewer”.':'Added.'}
  catch(e){st.textContent='Error: '+(e.message||e.code)}}
 function matViewer(cur,k){const u=urls(cur.url)[0]||cur.url||'';
@@ -689,13 +569,13 @@ function matViewer(cur,k){const u=urls(cur.url)[0]||cur.url||'';
  const fold=isFolder(cur.url);return`<iframe src="${esc(emb(cur.url))}" ${fold?'style="height:70vh;min-height:420px;background:var(--card)"':''} allowfullscreen allow="autoplay;encrypted-media;picture-in-picture"></iframe><p><a class="btn" href="${esc(cur.url)}" target="_blank" rel="noopener">${fold?'📁 Open folder in Google Drive':'Open in new tab'}</a></p>${fold?'<p class="mu">Tap a file to open it. If Google asks for access, the teacher needs to set the folder to “Anyone with the link – Viewer”.</p>':''}`}
 function pickMat(kind){const i=document.createElement('input');i.type='file';i.accept=kind=='ebook'?'.pdf,.epub,.doc,.docx,.ppt,.pptx,application/pdf':'video/*';i.onchange=()=>{const f=i.files[0];i.value='';if(f)prepMat(kind,f)};window._fi=i;i.click()}
 function prepMat(kind,f){const lim=kind=='ebook'?100:500;if(f.size/1048576>lim)return alert('File is larger than '+lim+' MB. Please compress it or add a link instead.');if(kind=='video'&&!/^video\//.test(f.type))return alert('Please choose a video file (MP4, MOV, WebM…).');
- S.mu={kind,f};mkModal('matUp',`<div class="box"><h3>Upload ${kind=='ebook'?'e-book':'video'}</h3><p class="mu" style="word-break:break-all">${esc(f.name)} · ${sz(f.size)}</p><span class="mu">Title *</span><input id="mu_t" maxlength="120" value="${esc(f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '))}"><span class="mu">Topic (optional – type any name)</span><input id="mu_tp" list="topiclist" maxlength="80" placeholder="e.g. SEO basics"><div class="bar" style="margin:12px 0 6px"><i id="mu_p" style="width:0%"></i></div><p class="mu" id="mu_s" style="margin:0">Ready to upload</p><p class="er" id="mu_m"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="cancelMat()">Cancel</button><button id="mu_b" onclick="doMat()">Upload</button></div></div>`,true)}
+ S.mu={kind,f};mkModal('matUp',`<div class="box"><h3>Upload ${kind=='ebook'?'e-book':'video'}</h3><p class="mu" style="word-break:break-all">${esc(f.name)} · ${sz(f.size)}</p><span class="mu">Title *</span><input id="mu_t" maxlength="120" value="${esc(f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '))}"><div class="bar" style="margin:12px 0 6px"><i id="mu_p" style="width:0%"></i></div><p class="mu" id="mu_s" style="margin:0">Ready to upload</p><p class="er" id="mu_m"></p><div class="row" style="justify-content:flex-end"><button class="g" onclick="cancelMat()">Cancel</button><button id="mu_b" onclick="doMat()">Upload</button></div></div>`,true)}
 function cancelMat(){if(S.mtask){try{S.mtask.cancel()}catch(e){}S.mtask=null}closeM('matUp')}
-async function doMat(){const{kind,f}=S.mu||{};if(!f)return;const t=$('#mu_t').value.trim(),tp=(($('#mu_tp')||{}).value||'').trim().slice(0,80),m=$('#mu_m'),b=$('#mu_b');if(!t)return m.textContent='Enter a title';b.disabled=true;m.textContent='';
+async function doMat(){const{kind,f}=S.mu||{};if(!f)return;const t=$('#mu_t').value.trim(),m=$('#mu_m'),b=$('#mu_b');if(!t)return m.textContent='Enter a title';b.disabled=true;m.textContent='';
  try{const path=`materials/${Date.now()}_${uid()}_${f.name.replace(/[^\w.\-]+/g,'_').slice(-80)}`,ref=stor().ref(path),task=ref.put(f,{contentType:f.type||'application/octet-stream'});S.mtask=task;setTimeout(()=>{const x=$('#mu_s');if(S.mtask===task&&x&&/^0%/.test(x.textContent))x.textContent='Still connecting to Firebase Storage… (bucket: '+bucketName()+'). If this does not start, press Cancel and check the Storage setup.'},8000);
   task.on('state_changed',sn=>{const p=Math.round(sn.bytesTransferred*100/sn.totalBytes),e=$('#mu_p'),x=$('#mu_s');if(e)e.style.width=p+'%';if(x)x.textContent=p+'% · '+sz(sn.bytesTransferred)+' of '+sz(sn.totalBytes)});
   await task;const url=await ref.getDownloadURL();
-  await db.collection('materials').add({type:kind,title:t.slice(0,120),url,path,fname:f.name.slice(0,120),size:f.size,mime:f.type||'',src:'file',topic:tp,ts:Date.now()});
+  await db.collection('materials').add({type:kind,title:t.slice(0,120),url,path,fname:f.name.slice(0,120),size:f.size,mime:f.type||'',src:'file',ts:Date.now()});
   S.mtask=null;closeM('matUp');toast('✅ Uploaded',t)}
  catch(e){S.mtask=null;const c=(e.code||'')+' '+(e.message||'');if(/canceled/.test(c))return;const mm=$('#mu_m'),bb=$('#mu_b');if(mm)mm.textContent=stErr(e,'materials');if(bb)bb.disabled=false}}
 async function delMat(id){const m=S.mats.find(x=>x.id==id);if(!m||!confirm('Delete “'+m.title+'”?'))return;try{if(m.path){try{await stor().ref(m.path).delete()}catch(e){}}await db.doc('materials/'+id).delete()}catch(e){alert('Could not delete: '+(e.message||e.code))}}
