@@ -97,6 +97,17 @@ table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1p
 @media(max-width:760px){.nav{overflow-x:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}.nav button{flex:1 0 auto;min-width:58px}}
 @media(max-width:760px){.nom{display:none}}
 .mchev{font-size:11px;font-weight:600;color:var(--pr)}.mexp{padding:12px}.mhead{max-width:220px;margin:0 auto 4px!important}.mn{font-weight:700;font-size:14px;margin:12px 2px 6px}.vlock{position:relative}.vshield{position:absolute;left:0;right:0;top:0;height:64px;z-index:2}.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:12px}.mcard{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 8px;margin:0}.mcard b{font-size:14px;word-break:break-word;line-height:1.25}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:12px 14px;box-shadow:var(--sh);cursor:pointer;transition:transform .08s}.stat:active{transform:scale(.98)}
+.stat small{display:block;color:var(--mu);font-size:12px}.stat b{display:block;font-size:26px;line-height:1.2;margin-top:2px}
+.brow{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:10px;cursor:pointer}.brow:hover{background:color-mix(in srgb,var(--pr) 8%,transparent)}
+.bl{flex:0 0 36%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}.bt{flex:1;height:12px;background:var(--bd);border-radius:99px;overflow:hidden}.bt i{display:block;height:100%;border-radius:99px;transition:width .4s}
+.bp{flex:0 0 auto;min-width:46px;text-align:right;font-weight:700;font-size:13px;white-space:nowrap}
+.cols{display:flex;align-items:stretch;gap:10px;height:190px;overflow-x:auto;padding:4px 2px}
+.col{flex:1 0 58px;max-width:110px;display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.col b{font-size:12px;height:18px}.cb{flex:1;width:100%;min-height:0;display:flex;align-items:flex-end;justify-content:center}.cb i{display:block;width:58%;min-height:3px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,var(--pr2),var(--pr));opacity:.55;transition:height .4s}
+.col.on .cb i{opacity:1}.col span{font-size:11px;color:var(--mu);margin-top:5px;text-align:center;line-height:1.15;height:26px;overflow:hidden;width:100%}.col.on span{color:var(--pr);font-weight:700}
+.chead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.chead .lnk{font-size:13px;font-weight:600;cursor:pointer;color:var(--pr)}
 </style></head><body><div id="app"><div class="hero"><div class="logo big">📣</div><h1>Explore Learning</h1><p class="sub">Digital Marketing</p><div class="spin"></div></div></div>
 <script>
 window.onerror=m=>{const a=document.getElementById('app');if(a)a.insertAdjacentHTML('afterbegin','<div class="card" style="color:#d33">Error: '+String(m).replace(/</g,'&lt;')+'</div>')};
@@ -133,7 +144,7 @@ async function login(){const u=$('#u').value.trim().toLowerCase(),p=$('#p').valu
  try{let em=u.includes('@')?u:(u||'x')+DOM;
   if(u&&!u.includes('@')){try{const d=await db.doc('usernames/'+u).get();if(d.exists){const x=d.data();if(x.blocked)throw{code:'auth/invalid-credential'};if(x.email)em=x.email}}catch(e){if(e.code=='auth/invalid-credential')throw e}}
   const uid=(await auth.signInWithEmailAndPassword(em,p)).user.uid;await loadProfile(uid);if(!S.user)amsg('Profile not found')}catch(e){amsg(aerr(e))}}
-function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'exams':'ebooks';sub();render();if(u.mustChange)setTimeout(forcePw,400)}
+function enter(u){S.user=u;S.msg='';S.tab=u.role=='teacher'?'home':'ebooks';sub();render();if(u.mustChange)setTimeout(forcePw,400)}
 let U=[];const unsub=()=>{U.forEach(f=>f());U=[]};
 function sub(){unsub();const T=S.user.role=='teacher',me=S.user.id,c=(n,k,q)=>U.push((q||db.collection(n)).onSnapshot(x=>{S[k]=x.docs.map(d=>({id:d.id,...d.data()}));if(k=='keysL'){S.keys={};x.docs.forEach(d=>S.keys[d.id]=d.data())}if(!S.taking)render()},e=>console.error(e)));
  c('materials','mats');if(T)c('exams','exams');else{const A={},B={},mg=()=>{const m={...A,...B};S.exams=Object.keys(m).map(k=>({id:k,...m[k]}));if(!S.taking)render()},on=(q,o)=>U.push(q.onSnapshot(x=>{for(const k in o)delete o[k];x.docs.forEach(d=>o[d.id]=d.data());mg()},e=>console.error(e)));on(db.collection('examMeta').where('all','==',true),A);on(db.collection('examMeta').where('to','array-contains',me),B)}c('syllabus','syl');chatSub();mockSub();
@@ -654,11 +665,43 @@ const authGo=()=>S.mode=='signup'?signup():login();
 function render(){const a=$('#app');preRender();
  if(!db){a.innerHTML=cfgView();return}
  if(!S.user){a.innerHTML=authView();return}
- const T=S.user.role=='teacher',tabs=T?[['exams','📝','Exams','Exams'],['mock','🎯','Mock','Mock Tests'],['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['syllabus','🗂️','Syllabus','Syllabus'],['progress','📈','Progress','Course Progress'],['students','👥','Students','Students'],['chat','💬','Chat','Discussion']]:[['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['mock','🎯','Mock','Mock Tests'],['exams','📝','Exams','Exams & Results'],['progress','📈','Progress','Course Progress'],['chat','💬','Chat','Discussion']],cur=tabs.find(t=>t[0]==S.tab)||tabs[0],nm=String(S.user.name||'?').trim();
+ const T=S.user.role=='teacher',tabs=T?[['home','🏠','Home','Dashboard'],['exams','📝','Exams','Exams'],['mock','🎯','Mock','Mock Tests'],['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['syllabus','🗂️','Syllabus','Syllabus'],['progress','📈','Progress','Course Progress'],['students','👥','Students','Students'],['chat','💬','Chat','Discussion']]:[['ebooks','📘','Books','E-books'],['videos','🎬','Videos','Videos'],['mock','🎯','Mock','Mock Tests'],['exams','📝','Exams','Exams & Results'],['progress','📈','Progress','Course Progress'],['chat','💬','Chat','Discussion']],cur=tabs.find(t=>t[0]==S.tab)||tabs[0],nm=String(S.user.name||'?').trim();
  a.innerHTML=`<header class="hd"><div class="brand"><span class="logo">📣</span><div><b>Explore Learning</b><small>Digital Marketing</small></div></div><div class="hr"><button class="ib inst" onclick="installApp()" ${DIP?'':'hidden'}>⬇ Install</button><span class="who"><b>${esc(nm)}</b><small>${esc(handle(S.user.username))} · ${esc(S.user.role)}</small></span><span class="av" onclick="showMe()" style="cursor:pointer" title="My profile">${esc(nm[0].toUpperCase())}</span><button class="ib" onclick="logout()" title="Logout" aria-label="Logout">⏻</button></div></header>
  ${S.taking?'':`<nav class="nav">${tabs.map(([k,ic,l])=>`<button class="${S.tab==k?'on':''}" onclick="S.tab='${k}';S.open=null;S.mat=null;render();scrollTo(0,0)"><span class="ic">${ic}</span>${l}${k=='chat'?cb():''}</button>`).join('')}</nav>`}
  <main>${S.taking||S.tab=='chat'?'':`<h2 class="pt">${cur[1]} ${cur[3]}</h2>`}
- ${S.taking?takeView():S.tab=='mock'?mockView(T):S.tab=='chat'?chatView(T):S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`;postRender()}
+ ${S.taking?takeView():S.tab=='home'&&T?dashView():S.tab=='mock'?mockView(T):S.tab=='chat'?chatView(T):S.tab=='ebooks'||S.tab=='videos'?matView(T):S.tab=='students'?stuView():S.tab=='syllabus'&&T?sylView():S.tab=='progress'?progView(T):T?(S.open?markView():tExams()):sExams()}</main>`;postRender()}
+/* ---------- teacher dashboard ---------- */
+function goProg(id){S.tab='progress';if(id)S.pstu=id;S.pmod=null;render();scrollTo(0,0)}
+function goTab(t){S.tab=t;S.open=null;render();scrollTo(0,0)}
+function dashView(){
+ const stu=(S.users||[]).filter(u=>u.role=='student'),exs=(S.exams||[]).slice().sort((a,b)=>b.ts-a.ts),subs=S.subs||[],mods=sylList(),
+  pcol=p=>p>=70?'var(--ok)':p>=40?'#f59e0b':'var(--er)',pc=s=>s.max?Math.round(s.total*100/s.max):0,chk=subs.filter(s=>s.checked&&s.max),
+  avgScore=chk.length?Math.round(chk.reduce((t,s)=>t+pc(s),0)/chk.length):null,
+  prog=stu.map(u=>({u,p:counts(u.id).p})).sort((a,b)=>b.p-a.p||String(a.u.name).localeCompare(String(b.u.name))),
+  avgProg=prog.length?Math.round(prog.reduce((t,x)=>t+x.p,0)/prog.length):0,toCheck=subs.filter(s=>!s.checked).length,
+  withSubs=exs.filter(e=>subs.some(s=>s.examId==e.id)),sel=exs.find(e=>e.id==S.dexam)||withSubs[0]||exs[0],
+  examAvg=e=>{const c=chk.filter(s=>s.examId==e.id);return c.length?Math.round(c.reduce((t,s)=>t+pc(s),0)/c.length):null},
+  row=(l,p,t,col,fn)=>`<div class="brow" onclick="${fn}"><div class="bl">${l}</div><div class="bt"><i style="width:${p}%;background:${col}"></i></div><div class="bp">${t}</div></div>`,
+  stat=(l,v,fn)=>`<div class="stat" onclick="${fn}"><small>${l}</small><b>${v}</b></div>`;
+ let exBlock='';
+ if(!exs.length)exBlock='<p class="mu">No exams yet. Create one in the Exams tab.</p>';
+ else{const a=audOf(sel),elig=a.all?stu:stu.filter(u=>a.to.includes(u.id)),rows=elig.map(u=>({u,s:subs.find(x=>x.examId==sel.id&&x.uid==u.id)})),
+   done=rows.filter(r=>r.s&&r.s.checked&&r.s.max).sort((x,y)=>pc(y.s)-pc(x.s)),tc=rows.filter(r=>r.s&&!(r.s.checked&&r.s.max)),ns=rows.filter(r=>!r.s),ps=done.map(r=>pc(r.s)),
+   lab=r=>`${esc(r.u.name)} <span class="mu">${esc(handle(r.u.username))}</span>`,cols=exs.slice(0,12).reverse();
+  exBlock=`<p class="mu" style="margin:0 0 4px">Average score per exam – tap a column to see its marks</p>
+  <div class="cols">${cols.map(e=>{const v=examAvg(e);return`<div class="col ${e.id==sel.id?'on':''}" onclick="S.dexam='${e.id}';render()"><b>${v==null?'–':v+'%'}</b><div class="cb"><i style="height:${v||0}%"></i></div><span>${esc(e.title)}</span></div>`}).join('')}</div>
+  <div class="row" style="margin:12px 0 6px"><select onchange="S.dexam=this.value;render()">${exs.map(e=>`<option value="${e.id}" ${e.id==sel.id?'selected':''}>${esc(e.title)}</option>`).join('')}</select><button class="g" style="flex:none" onclick="S.tab='exams';S.open={e:'${sel.id}'};render();scrollTo(0,0)">Check answers</button></div>
+  <p class="mu" style="margin:0 0 6px">Submitted ${rows.length-ns.length} of ${rows.length} · Checked ${done.length}${ps.length?` · Average ${Math.round(ps.reduce((t,x)=>t+x,0)/ps.length)}% · Highest ${Math.max(...ps)}% · Lowest ${Math.min(...ps)}%`:''}</p>
+  ${done.map(r=>row(lab(r),pc(r.s),`${r.s.total}/${r.s.max} · ${pc(r.s)}%`,pcol(pc(r.s)),`goProg('${r.u.id}')`)).join('')}
+  ${tc.map(r=>row(lab(r),0,'<span class="tag">to check</span>','var(--bd)',`goProg('${r.u.id}')`)).join('')}
+  ${ns.map(r=>row(lab(r),0,'<span class="mu">not submitted</span>','var(--bd)',`goProg('${r.u.id}')`)).join('')}
+  ${rows.length?'':'<p class="mu">No students are assigned to this exam.</p>'}`}
+ const modAvg=mods.map(t=>({t,p:stu.length?Math.round(stu.reduce((s,u)=>s+counts(u.id,t).p,0)/stu.length):0}));
+ return`<div class="stats">${stat('👥 Students',stu.length,"goTab('students')")}${stat('📝 Exams',exs.length,"goTab('exams')")}${stat('🎯 Avg exam score',avgScore==null?'–':avgScore+'%',"goTab('exams')")}${stat('📈 Avg course progress',avgProg+'%',"goProg('')")}${stat('⏳ To check',toCheck,"goTab('exams')")}${stat('🧪 Mock attempts',(S.matt||[]).length,"goTab('mock')")}</div>
+ <div class="card"><div class="chead"><b>📈 Course progress by student</b><span class="lnk" onclick="goProg('')">Open Progress →</span></div><p class="mu" style="margin:0 0 6px">Tap a student to open their progress and mark topics.</p>
+ ${prog.map(x=>row(`${esc(x.u.name)} <span class="mu">${esc(handle(x.u.username))}</span>`,x.p,x.p+'%',pcol(x.p),`goProg('${x.u.id}')`)).join('')||'<p class="mu">No students have signed up yet.</p>'}</div>
+ ${modAvg.length?`<div class="card"><div class="chead"><b>📚 Class average by module</b><span class="lnk" onclick="goProg('')">Open Progress →</span></div><div class="cols">${modAvg.map(m=>`<div class="col on" onclick="goProg('')"><b>${m.p}%</b><div class="cb"><i style="height:${m.p}%"></i></div><span>${esc(m.t.name)}</span></div>`).join('')}</div></div>`:''}
+ <div class="card"><div class="chead"><b>📝 Exam marks</b><span class="lnk" onclick="goTab('exams')">Open Exams →</span></div>${exBlock}</div>`}
 /* ---------- materials ---------- */
 const isFolder=u=>/drive\.google\.com\/drive\/(u\/\d+\/)?folders\/|drive\.google\.com\/folderview\?|drive\.google\.com\/embeddedfolderview\?/.test(u||'');
 const YP='rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&fs=1';
